@@ -2,26 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>The Dusty Diamond: Store Processing Game</title>
+    <title>🌌 QUANTUM DIAMOND: NEXUS PROTOCOL 🌌</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
     <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Crystal_Clear_action_diamond.png/240px-Crystal_Clear_action_diamond.png">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Crystal_Clear_action_diamond.png/240px-Crystal_Clear_action_diamond.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
         * { 
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             -webkit-tap-highlight-color: transparent;
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
+        
         body { 
             margin: 0; 
             padding: 0; 
-            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
-            font-family: 'Courier New', monospace; 
+            background: radial-gradient(circle at center, #0a0a2e 0%, #000011 50%, #000000 100%);
+            font-family: 'Orbitron', monospace; 
             overflow: hidden; 
             cursor: none;
             position: fixed;
@@ -29,198 +31,247 @@
             height: 100%;
             touch-action: none;
         }
+        
         #gameContainer { 
             position: relative; 
             width: 100vw; 
             height: 100vh; 
             overflow: hidden;
         }
-        #ui {
+        
+        #quantumUI {
             position: absolute; 
-            top: 15px; 
-            left: 15px;
-            color: #00ff88; 
-            font-size: 18px; 
+            top: 20px; 
+            left: 20px;
+            color: #00ffff; 
+            font-size: 16px; 
             font-weight: bold; 
             z-index: 100;
-            text-shadow: 0 0 10px rgba(0,255,136,0.8);
-            background: rgba(0,0,0,0.85); 
-            padding: 16px; 
-            border-radius: 12px;
-            border: 2px solid #00ff88;
-            box-shadow: 0 0 20px rgba(0,255,136,0.3);
+            text-shadow: 0 0 20px #00ffff;
+            background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(0,20,40,0.8)); 
+            padding: 20px; 
+            border-radius: 15px;
+            border: 2px solid #00ffff;
+            box-shadow: 0 0 30px rgba(0,255,255,0.5);
+            backdrop-filter: blur(10px);
+            min-width: 280px;
         }
-        #comboDisplay {
+        
+        #abilityBar {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            color: #ffaa00;
-            font-size: 24px;
-            font-weight: bold;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
             z-index: 100;
-            text-shadow: 0 0 15px rgba(255,170,0,0.9);
-            background: rgba(0,0,0,0.85);
-            padding: 12px 20px;
-            border-radius: 12px;
-            border: 2px solid #ffaa00;
-            box-shadow: 0 0 25px rgba(255,170,0,0.4);
-            display: none;
         }
+        
+        .ability-slot {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(145deg, rgba(0,0,0,0.9), rgba(20,20,60,0.9));
+            border: 3px solid #00ffff;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #00ffff;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(0,255,255,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ability-slot:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(0,255,255,0.8);
+        }
+        
+        .ability-slot.cooldown {
+            border-color: #666;
+            color: #666;
+        }
+        
+        .ability-slot .cooldown-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255,0,0,0.5);
+            transition: height 0.1s linear;
+        }
+        
+        .ability-slot .hotkey {
+            font-size: 10px;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            opacity: 0.7;
+        }
+        
         #crosshair { 
             position: absolute; 
             top: 50%; 
             left: 50%; 
             transform: translate(-50%, -50%); 
-            width: 30px; 
-            height: 30px; 
+            width: 40px; 
+            height: 40px; 
             z-index: 150; 
             pointer-events: none;
             opacity: 0.9;
         }
+        
         #crosshair::before { 
             content: ''; 
             position: absolute; 
             top: 50%; 
             left: 0; 
             width: 100%; 
-            height: 3px; 
-            background: linear-gradient(90deg, transparent, #00ff88, transparent);
+            height: 2px; 
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
             transform: translateY(-50%);
-            box-shadow: 0 0 10px #00ff88;
+            box-shadow: 0 0 15px #00ffff;
+            animation: pulse 1s ease-in-out infinite alternate;
         }
+        
         #crosshair::after { 
             content: ''; 
             position: absolute; 
             left: 50%; 
             top: 0; 
-            width: 3px; 
+            width: 2px; 
             height: 100%; 
-            background: linear-gradient(180deg, transparent, #00ff88, transparent);
+            background: linear-gradient(180deg, transparent, #00ffff, transparent);
             transform: translateX(-50%);
-            box-shadow: 0 0 10px #00ff88;
+            box-shadow: 0 0 15px #00ffff;
+            animation: pulse 1s ease-in-out infinite alternate;
         }
-        #instructions, #gameOver, #levelComplete, #pauseMenu, #leaderboard {
+        
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+        
+        #comboDisplay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #ff00ff;
+            font-size: 28px;
+            font-weight: 900;
+            z-index: 100;
+            text-shadow: 0 0 20px #ff00ff;
+            background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(40,0,40,0.8));
+            padding: 15px 25px;
+            border-radius: 15px;
+            border: 2px solid #ff00ff;
+            box-shadow: 0 0 30px rgba(255,0,255,0.5);
+            backdrop-filter: blur(10px);
+            display: none;
+            animation: glow 1s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            0% { box-shadow: 0 0 30px rgba(255,0,255,0.5); }
+            100% { box-shadow: 0 0 50px rgba(255,0,255,0.9); }
+        }
+        
+        #achievements {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 90;
+            max-width: 300px;
+        }
+        
+        .achievement {
+            background: linear-gradient(135deg, rgba(255,215,0,0.9), rgba(255,140,0,0.8));
+            color: #000;
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 0 20px rgba(255,215,0,0.6);
+            animation: achievementSlide 3s ease-in-out forwards;
+            border: 2px solid #ffd700;
+        }
+        
+        @keyframes achievementSlide {
+            0% { transform: translateX(100%); opacity: 0; }
+            20% { transform: translateX(0); opacity: 1; }
+            80% { transform: translateX(0); opacity: 1; }
+            100% { transform: translateX(100%); opacity: 0; }
+        }
+        
+        #instructions, #gameOver, #levelComplete, #pauseMenu {
             position: absolute; 
             top: 50%; 
             left: 50%; 
             transform: translate(-50%, -50%);
             text-align: center; 
             font-size: 18px; 
-            background: rgba(0,0,0,0.95); 
-            padding: 25px; 
-            border-radius: 15px; 
+            background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(0,20,40,0.9)); 
+            padding: 30px; 
+            border-radius: 20px; 
             z-index: 200; 
             max-height: 90vh; 
             overflow-y: auto; 
             max-width: 90vw;
-            box-shadow: 0 0 30px rgba(0,255,136,0.5);
+            backdrop-filter: blur(15px);
+            border: 3px solid #00ffff;
+            box-shadow: 0 0 50px rgba(0,255,255,0.5);
         }
-        #instructions { border: 3px solid #00ff88; color: #00ff88; display: none; }
-        #gameOver { border: 3px solid #ff4444; color: #ff4444; display: none;}
-        #levelComplete { border: 3px solid #00ff88; color: #00ff88; display: none;}
-        #pauseMenu { border: 3px solid #ffaa00; color: #ffaa00; display: none; }
-        #leaderboard { border: 3px solid #00ff88; color: #00ff88; display: none; }
+        
+        #instructions { color: #00ffff; display: none; }
+        #gameOver { color: #ff4444; border-color: #ff4444; display: none;}
+        #levelComplete { color: #00ff88; border-color: #00ff88; display: none;}
+        #pauseMenu { color: #ffaa00; border-color: #ffaa00; display: none; }
         
         .btn { 
-            background: linear-gradient(145deg, #333, #444); 
-            color: #00ff88; 
-            border: 3px solid #00ff88; 
-            padding: 14px 28px; 
-            margin: 10px; 
+            background: linear-gradient(145deg, #001133, #002244); 
+            color: #00ffff; 
+            border: 3px solid #00ffff; 
+            padding: 15px 30px; 
+            margin: 12px; 
             cursor: pointer; 
-            font-family: 'Courier New', monospace; 
+            font-family: 'Orbitron', monospace; 
             font-size: 18px; 
-            border-radius: 10px;
-            transition: all 0.3s;
-            box-shadow: 0 0 15px rgba(0,255,136,0.3);
+            font-weight: bold;
+            border-radius: 12px;
+            transition: all 0.4s;
+            box-shadow: 0 0 20px rgba(0,255,255,0.3);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
         }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,255,255,0.4), transparent);
+            transition: all 0.6s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
         .btn:hover, .btn:active { 
-            background: linear-gradient(145deg, #00ff88, #00cc66);
+            background: linear-gradient(145deg, #00ffff, #00aacc);
             color: #000;
-            box-shadow: 0 0 25px rgba(0,255,136,0.7);
-            transform: translateY(-2px);
-        }
-        
-        #minimap { 
-            position: absolute; 
-            top: 15px; 
-            right: 15px; 
-            width: 180px; 
-            height: 180px; 
-            background: rgba(0,0,0,0.9); 
-            border: 3px solid #00ff88; 
-            border-radius: 12px; 
-            z-index: 99;
-            box-shadow: 0 0 15px rgba(0,255,136,0.4);
-        }
-        
-        #mobileControls {
-            position: absolute;
-            bottom: 25px;
-            right: 25px;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            touch-action: manipulation;
-        }
-        .mobile-row {
-            display: flex;
-            flex-direction: row;
-            gap: 15px;
-        }
-        .mobile-arrow {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(145deg, rgba(0,0,0,0.9), rgba(20,20,20,0.9));
-            border: 3px solid #00ff88;
-            border-radius: 50%;
-            color: #00ff88;
-            font-size: 32px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            user-select: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 0 20px rgba(0,255,136,0.4);
-            font-weight: bold;
-        }
-        .mobile-arrow:active {
-            background: linear-gradient(145deg, #00ff88, #00cc66);
-            color: #000;
-            transform: scale(0.95);
-            box-shadow: 0 0 30px rgba(0,255,136,0.8);
-        }
-        
-        #shootButton {
-            position: absolute;
-            bottom: 25px;
-            left: 25px;
-            width: 90px;
-            height: 90px;
-            background: linear-gradient(145deg, rgba(255,0,0,0.9), rgba(200,0,0,0.9));
-            border: 3px solid #ff4444;
-            border-radius: 50%;
-            color: #fff;
-            font-size: 24px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            user-select: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 0 20px rgba(255,68,68,0.5);
-            font-weight: bold;
-            z-index: 1000;
-        }
-        #shootButton:active {
-            background: linear-gradient(145deg, #ff4444, #cc0000);
-            transform: scale(0.9);
-            box-shadow: 0 0 35px rgba(255,68,68,0.9);
+            box-shadow: 0 0 40px rgba(0,255,255,0.9);
+            transform: translateY(-3px);
         }
         
         #particleCanvas {
@@ -233,68 +284,137 @@
             z-index: 50;
         }
         
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-2px); }
-            75% { transform: translateX(2px); }
+        #mobileControls {
+            position: absolute;
+            bottom: 120px;
+            right: 25px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            touch-action: manipulation;
+        }
+        
+        .mobile-row {
+            display: flex;
+            flex-direction: row;
+            gap: 12px;
+        }
+        
+        .mobile-arrow {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(145deg, rgba(0,0,0,0.9), rgba(0,20,40,0.9));
+            border: 2px solid #00ffff;
+            border-radius: 50%;
+            color: #00ffff;
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 0 15px rgba(0,255,255,0.4);
+            font-weight: bold;
+        }
+        
+        .mobile-arrow:active {
+            background: linear-gradient(145deg, #00ffff, #00aacc);
+            color: #000;
+            transform: scale(0.95);
+            box-shadow: 0 0 25px rgba(0,255,255,0.8);
+        }
+        
+        @keyframes screenShake {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-2px, 2px) rotate(-0.5deg); }
+            50% { transform: translate(2px, -2px) rotate(0.5deg); }
+            75% { transform: translate(-2px, -2px) rotate(-0.5deg); }
         }
         
         .screen-shake {
-            animation: shake 0.1s ease-in-out;
+            animation: screenShake 0.15s ease-in-out;
+        }
+        
+        @keyframes quantumGlitch {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-2px); }
+            40% { transform: translateX(2px); }
+            60% { transform: translateX(-1px); }
+            80% { transform: translateX(1px); }
+            100% { transform: translateX(0); }
+        }
+        
+        .quantum-glitch {
+            animation: quantumGlitch 0.3s ease-in-out;
+        }
+        
+        .energy-bar {
+            width: 200px;
+            height: 8px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 5px 0;
+            border: 1px solid #00ffff;
+        }
+        
+        .energy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffff, #0099cc);
+            transition: width 0.3s;
+            box-shadow: 0 0 10px #00ffff;
+        }
+        
+        #dimensionIndicator {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            color: #ff00ff;
+            font-size: 24px;
+            font-weight: 900;
+            text-shadow: 0 0 20px #ff00ff;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.5s;
         }
         
         @media (max-width: 768px) {
-            #ui { 
-                font-size: 16px; 
-                padding: 12px; 
+            #quantumUI { 
+                font-size: 14px; 
+                padding: 15px; 
                 top: 10px; 
-                left: 10px; 
+                left: 10px;
+                min-width: 200px;
             }
             #comboDisplay {
                 font-size: 20px;
                 top: 10px;
                 right: 10px;
-                padding: 8px 16px;
+                padding: 10px 15px;
             }
-            #minimap { 
-                width: 140px; 
-                height: 140px; 
-                top: 10px; 
-                right: 10px;
-                display: none; /* Hide on mobile for better visibility */
+            #abilityBar {
+                bottom: 20px;
+                gap: 10px;
             }
-            #crosshair { 
-                width: 25px; 
-                height: 25px; 
-            }
-            #instructions, #gameOver, #levelComplete, #pauseMenu, #leaderboard { 
-                font-size: 16px;
-                padding: 20px;
+            .ability-slot {
+                width: 60px;
+                height: 60px;
+                font-size: 20px;
             }
             #mobileControls { 
-                bottom: 20px; 
+                bottom: 100px; 
                 right: 20px; 
-                gap: 12px;
+                gap: 10px;
             }
             .mobile-arrow { 
-                width: 60px; 
-                height: 60px; 
-                font-size: 28px; 
+                width: 50px; 
+                height: 50px; 
+                font-size: 20px; 
             }
-            #shootButton {
-                bottom: 20px;
-                left: 20px;
-                width: 80px;
-                height: 80px;
-                font-size: 22px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            #ui { font-size: 14px; }
-            #comboDisplay { font-size: 18px; }
-            .mobile-arrow { width: 55px; height: 55px; font-size: 24px; }
-            #shootButton { width: 70px; height: 70px; font-size: 20px; }
         }
     </style>
 </head>
@@ -302,21 +422,53 @@
 <div id="gameContainer">
     <canvas id="particleCanvas"></canvas>
     <div id="crosshair"></div>
-    <div id="ui">
-        <div>Level: <span id="level">1</span></div>
-        <div>Clutter: <span id="clutter">0</span></div>
-        <div>Score: <span id="score">0</span></div>
-        <div>Health: <span id="health">❤️❤️❤️</span></div>
-        <div>Streak: <span id="streak">0</span></div>
-        <div style="font-size:14px;margin-top:8px;opacity:0.8;">[WASD] Move | [Click] Shoot | [P] Pause | M = Mute</div>
+    
+    <div id="quantumUI">
+        <div style="font-size: 20px; margin-bottom: 10px; color: #ff00ff;">🌌 NEXUS PROTOCOL 🌌</div>
+        <div>Reality Layer: <span id="level">ALPHA-001</span></div>
+        <div>Quantum Data: <span id="clutter">0</span></div>
+        <div>Nexus Score: <span id="score">0</span></div>
+        <div>Neural Streak: <span id="streak">0</span></div>
+        <div style="margin: 8px 0;">
+            <div style="font-size: 12px;">QUANTUM ENERGY</div>
+            <div class="energy-bar">
+                <div class="energy-fill" id="energyFill"></div>
+            </div>
+        </div>
+        <div style="font-size: 12px; margin-top: 10px; opacity: 0.9;">
+            [WASD] Navigate | [Click] Quantum Blast | [Q/E/R/T] Abilities | [P] Pause
+        </div>
     </div>
     
     <div id="comboDisplay">
-        <div id="comboText">COMBO x<span id="comboMultiplier">1</span></div>
-        <div id="comboTimer" style="font-size:12px; margin-top:4px;">●●●●●</div>
+        <div id="comboText">QUANTUM COMBO x<span id="comboMultiplier">1</span></div>
+        <div id="comboTimer" style="font-size: 14px; margin-top: 6px;">●●●●●●●●●●</div>
     </div>
     
-    <canvas id="minimap"></canvas>
+    <div id="dimensionIndicator">
+        DIMENSION SHIFT ACTIVE
+    </div>
+    
+    <div id="abilityBar">
+        <div class="ability-slot" id="quantumDash" title="Quantum Dash">
+            ⚡<div class="hotkey">Q</div>
+            <div class="cooldown-overlay"></div>
+        </div>
+        <div class="ability-slot" id="timeDilation" title="Time Dilation">
+            ⏱️<div class="hotkey">E</div>
+            <div class="cooldown-overlay"></div>
+        </div>
+        <div class="ability-slot" id="magneticField" title="Magnetic Field">
+            🧲<div class="hotkey">R</div>
+            <div class="cooldown-overlay"></div>
+        </div>
+        <div class="ability-slot" id="dimensionShift" title="Dimension Shift">
+            🌀<div class="hotkey">T</div>
+            <div class="cooldown-overlay"></div>
+        </div>
+    </div>
+    
+    <div id="achievements"></div>
     
     <div id="mobileControls">
         <div class="mobile-row">
@@ -329,166 +481,814 @@
         </div>
     </div>
     
-    <button id="shootButton">💥</button>
-    
     <div id="instructions">
-        <h2 style="margin: 0 0 15px 0; font-size: 28px;">💎 THE DUSTY DIAMOND 💎</h2>
-        <h3 style="margin: 0 0 20px 0; font-size: 20px;">Store Processing Mastery</h3>
-        <div style="margin: 15px 0; padding: 20px; background: rgba(0,255,136,0.15); border-radius: 10px; text-align: left;">
-            <p style="margin: 8px 0; font-size: 18px; text-align: center;"><strong>🎯 YOUR MISSION:</strong></p>
-            <p style="margin: 5px 0;">• You're a sparkling diamond cleaning the thrift store</p>
-            <p style="margin: 5px 0;">• Collect all yellow clutter to advance levels</p>
-            <p style="margin: 5px 0;">• Build COMBOS by collecting items quickly!</p>
-            <p style="margin: 5px 0;">• Avoid red customers - they steal your energy</p>
-            <p style="margin: 5px 0;">• Green customers are friendly helpers</p>
-            <p style="margin: 5px 0;">• Grab power-ups for health and special abilities!</p>
+        <h2 style="margin: 0 0 20px 0; font-size: 32px; color: #ff00ff;">🌌 QUANTUM DIAMOND: NEXUS PROTOCOL 🌌</h2>
+        <h3 style="margin: 0 0 25px 0; font-size: 22px;">REALITY MANIPULATION MASTERY</h3>
+        <div style="margin: 20px 0; padding: 25px; background: rgba(0,255,255,0.15); border-radius: 15px; text-align: left;">
+            <p style="margin: 10px 0; font-size: 18px; text-align: center;"><strong>🎯 YOUR QUANTUM MISSION:</strong></p>
+            <p style="margin: 6px 0;">• You are a sentient quantum diamond with reality-bending powers</p>
+            <p style="margin: 6px 0;">• Collect all quantum data to destabilize reality layers</p>
+            <p style="margin: 6px 0;">• Master time, space, and dimensional manipulation</p>
+            <p style="margin: 6px 0;">• Build MASSIVE combos with chain lightning effects</p>
+            <p style="margin: 6px 0;">• Battle evolved AI swarms with collective intelligence</p>
+            <p style="margin: 6px 0;">• Break through reality barriers and reshape the nexus</p>
         </div>
-        <div style="margin: 15px 0; padding: 15px; background: rgba(255,170,0,0.15); border-radius: 10px;">
-            <p style="margin: 8px 0; font-size: 16px; text-align: center;"><strong>🎮 CONTROLS:</strong></p>
-            <p style="margin: 4px 0; text-align: center;">WASD = Move | Mouse = Look | Click = Spray | P = Pause | M = Mute</p>
-            <p style="margin: 4px 0; text-align: center;">Mobile: Arrow buttons move, red button shoots</p>
+        <div style="margin: 20px 0; padding: 20px; background: rgba(255,0,255,0.15); border-radius: 15px;">
+            <p style="margin: 10px 0; font-size: 16px; text-align: center;"><strong>⚡ QUANTUM ABILITIES:</strong></p>
+            <p style="margin: 6px 0; text-align: center;">Q = Quantum Dash | E = Time Dilation | R = Magnetic Field | T = Dimension Shift</p>
+            <p style="margin: 6px 0; text-align: center;">Left Click = Quantum Blast | P = Pause Protocol</p>
         </div>
+        <button class="btn" onclick="startGame()">INITIATE NEXUS PROTOCOL</button>
     </div>
     
     <div id="gameOver">
-        <h2>STORE CLOSED!</h2>
-        <p>The chaos got the better of you!</p>
-        <p>Final Score: <span id="finalScore">0</span></p>
-        <p>Best Combo: <span id="finalCombo">0</span>x</p>
-        <button class="btn" onclick="restartGame()">Retry Mission</button>
-        <button class="btn" onclick="showLeaderboard()">Hall of Fame</button>
+        <h2>🌌 REALITY COLLAPSED! 🌌</h2>
+        <p>The quantum nexus has destabilized beyond repair...</p>
+        <p>Final Nexus Score: <span id="finalScore">0</span></p>
+        <p>Maximum Quantum Combo: <span id="finalCombo">0</span>x</p>
+        <p>Reality Layers Breached: <span id="finalLevel">0</span></p>
+        <button class="btn" onclick="restartGame()">REBOOT NEXUS</button>
+        <button class="btn" onclick="showInstructions()">QUANTUM MANUAL</button>
     </div>
     
     <div id="levelComplete">
-        <h2>LEVEL PROCESSED!</h2>
-        <p>Excellent work, Diamond!</p>
-        <p>Score: <span id="levelScore">0</span></p>
-        <p>Level Bonus: <span id="levelBonus">0</span></p>
-        <button class="btn" onclick="nextLevel()">Next Challenge</button>
+        <h2>🌟 REALITY LAYER BREACHED! 🌟</h2>
+        <p>Quantum coherence achieved! Advancing to next reality...</p>
+        <p>Layer Score: <span id="layerScore">0</span></p>
+        <p>Quantum Bonus: <span id="quantumBonus">0</span></p>
+        <button class="btn" onclick="nextLevel()">BREACH NEXT LAYER</button>
     </div>
     
     <div id="pauseMenu">
-        <h2>MISSION PAUSED</h2>
-        <p>Take a breather, Diamond</p>
-        <button class="btn" onclick="resumeGame()">Continue</button>
-        <button class="btn" onclick="showLeaderboard()">Hall of Fame</button>
-    </div>
-    
-    <div id="leaderboard">
-        <h2>🏆 HALL OF FAME 🏆</h2>
-        <div id="scoresList"></div>
-        <button class="btn" onclick="hideLeaderboard()">Back</button>
+        <h2>⏸️ NEXUS PROTOCOL SUSPENDED ⏸️</h2>
+        <p>Reality temporarily stabilized...</p>
+        <button class="btn" onclick="resumeGame()">RESUME PROTOCOL</button>
+        <button class="btn" onclick="showInstructions()">QUANTUM MANUAL</button>
     </div>
 </div>
 
 <script>
-// Enhanced sound system with better feedback
-const sounds = {
-    collect: { freq: 800, duration: 0.1, type: 'square' },
-    comboCollect: { freq: 1200, duration: 0.15, type: 'sine' },
-    hit: { freq: 150, duration: 0.3, type: 'sawtooth' },
-    shoot: { freq: 400, duration: 0.05, type: 'noise' },
-    levelup: { freq: 600, duration: 0.5, type: 'sine' },
-    gameover: { freq: 100, duration: 1.0, type: 'sawtooth' },
-    powerup: { freq: 1000, duration: 0.3, type: 'sine' },
-    comboBreak: { freq: 200, duration: 0.2, type: 'sawtooth' }
+// ===== QUANTUM DIAMOND: NEXUS PROTOCOL =====
+// Revolutionary 3D browser game with advanced physics, AI, and reality manipulation
+
+// Enhanced sound system with procedural generation
+const quantumSounds = {
+    collect: { freq: 800, duration: 0.15, type: 'sine', modulation: true },
+    comboCollect: { freq: 1400, duration: 0.2, type: 'sine', modulation: true },
+    quantumBlast: { freq: 600, duration: 0.1, type: 'sawtooth', modulation: true },
+    hit: { freq: 120, duration: 0.4, type: 'sawtooth' },
+    levelup: { freq: 800, duration: 0.8, type: 'sine', harmony: true },
+    gameover: { freq: 80, duration: 1.5, type: 'sawtooth' },
+    powerup: { freq: 1200, duration: 0.4, type: 'sine', harmony: true },
+    quantumDash: { freq: 2000, duration: 0.3, type: 'sine', sweep: true },
+    timeDilation: { freq: 400, duration: 1.0, type: 'sine', reverb: true },
+    magneticField: { freq: 300, duration: 0.6, type: 'triangle', pulse: true },
+    dimensionShift: { freq: 1600, duration: 0.5, type: 'sine', harmony: true },
+    chainLightning: { freq: 1800, duration: 0.2, type: 'square', modulation: true },
+    achievement: { freq: 1000, duration: 0.6, type: 'sine', harmony: true },
+    bossSpawn: { freq: 60, duration: 2.0, type: 'sawtooth', crescendo: true }
 };
 
 let audioContext;
 let mute = false;
+let musicNodes = [];
 
-function initAudio() {
+function initQuantumAudio() {
     try {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        startProceduralMusic();
     } catch(e) {
-        console.warn("Audio not supported");
+        console.warn("Quantum audio matrix not available");
     }
 }
 
-function playSound(name, volume = 0.3) {
-    if (mute || !audioContext || !sounds[name]) return;
+function playQuantumSound(name, volume = 0.3, pitch = 1) {
+    if (mute || !audioContext || !quantumSounds[name]) return;
     
     try {
-        const sound = sounds[name];
+        const sound = quantumSounds[name];
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
+        const analyser = audioContext.createAnalyser();
         
-        if (sound.type === 'noise') {
-            // Create noise for shooting sound
-            const bufferSize = audioContext.sampleRate * sound.duration;
-            const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-            const output = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                output[i] = Math.random() * 2 - 1;
-            }
-            const noise = audioContext.createBufferSource();
-            noise.buffer = buffer;
-            noise.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + sound.duration);
-            noise.start(audioContext.currentTime);
-            noise.stop(audioContext.currentTime + sound.duration);
-        } else {
-            oscillator.type = sound.type;
-            oscillator.frequency.setValueAtTime(sound.freq, audioContext.currentTime);
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + sound.duration);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + sound.duration);
+        oscillator.type = sound.type;
+        oscillator.frequency.setValueAtTime(sound.freq * pitch, audioContext.currentTime);
+        
+        // Advanced sound modulation
+        if (sound.modulation) {
+            const lfo = audioContext.createOscillator();
+            const lfoGain = audioContext.createGain();
+            lfo.frequency.setValueAtTime(5, audioContext.currentTime);
+            lfoGain.gain.setValueAtTime(20, audioContext.currentTime);
+            lfo.connect(lfoGain);
+            lfoGain.connect(oscillator.frequency);
+            lfo.start(audioContext.currentTime);
+            lfo.stop(audioContext.currentTime + sound.duration);
         }
+        
+        if (sound.sweep) {
+            oscillator.frequency.exponentialRampToValueAtTime(
+                sound.freq * pitch * 0.3, 
+                audioContext.currentTime + sound.duration
+            );
+        }
+        
+        if (sound.harmony) {
+            const harmonic = audioContext.createOscillator();
+            const harmonicGain = audioContext.createGain();
+            harmonic.type = 'sine';
+            harmonic.frequency.setValueAtTime(sound.freq * pitch * 1.5, audioContext.currentTime);
+            harmonic.connect(harmonicGain);
+            harmonicGain.connect(audioContext.destination);
+            harmonicGain.gain.setValueAtTime(volume * 0.3, audioContext.currentTime);
+            harmonicGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + sound.duration);
+            harmonic.start(audioContext.currentTime);
+            harmonic.stop(audioContext.currentTime + sound.duration);
+        }
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(analyser);
+        analyser.connect(audioContext.destination);
+        
+        gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + sound.duration);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + sound.duration);
+        
     } catch(e) {
-        console.warn("Audio playback failed");
+        console.warn("Quantum sound synthesis failed");
     }
 }
 
-function toggleMute() {
-    mute = !mute;
+function startProceduralMusic() {
+    if (!audioContext) return;
+    
+    const baseFreq = 220;
+    const scale = [1, 1.125, 1.25, 1.5, 1.67, 1.875, 2];
+    
+    function createMusicNote(freq, duration, delay = 0) {
+        setTimeout(() => {
+            if (gameState === 'playing' && !mute) {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                const filter = audioContext.createBiquadFilter();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(freq * 4, audioContext.currentTime);
+                
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                gain.gain.setValueAtTime(0, audioContext.currentTime);
+                gain.gain.linearRampToValueAtTime(0.05, audioContext.currentTime + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                osc.start(audioContext.currentTime);
+                osc.stop(audioContext.currentTime + duration);
+            }
+        }, delay);
+    }
+    
+    function generateMusicLoop() {
+        if (gameState === 'playing') {
+            const noteCount = 8;
+            const noteDuration = 2000;
+            
+            for (let i = 0; i < noteCount; i++) {
+                const scaleIndex = Math.floor(Math.random() * scale.length);
+                const freq = baseFreq * scale[scaleIndex] * (combo > 5 ? 1.2 : 1);
+                createMusicNote(freq, 1.5, i * 250);
+            }
+        }
+        
+        setTimeout(generateMusicLoop, 8000);
+    }
+    
+    generateMusicLoop();
 }
 
-// Enhanced game variables with progression systems
-let scene, camera, renderer, player, maze, customers = [], clutter = [], projectiles = [];
-let powerups = [], particles = [];
-let gameState = 'playing';
-let level = 1, score = 0, health = 3, maxHealth = 3, playerInvincible = false;
+// Enhanced game variables with quantum mechanics
+let scene, camera, renderer, player, maze;
+let enemies = [], quantumData = [], projectiles = [], powerups = [], particles = [];
+let gameState = 'instructions';
+let level = 1, score = 0, energy = 100, maxEnergy = 100;
 let keys = {}, mouseX = 0, mouseY = 0;
-let playerSpeed = 0.055, customerSpeed = 0.008; // Much slower, more precise movement
-let mazeSize = 25; // Larger maze for more open feel
-let cameraRotationY = 0, cameraRotationX = 0;
+let playerSpeed = 0.1, basePlayerSpeed = 0.1;
+let mazeSize = 30;
 let lastShot = 0, lastHitTime = 0;
 let mazeLayout = [];
-let minimapCanvas, minimapCtx;
-let leaderboardScores = [];
 let mobileMode = false;
 let mobileMove = {up:false,down:false,left:false,right:false};
 
-// Combo and progression system
-let streak = 0, combo = 1, lastCollectTime = 0, comboTimer = 5000;
+// Revolutionary gameplay systems
+let streak = 0, combo = 1, lastCollectTime = 0, comboTimer = 8000;
 let bestCombo = 1, totalCollected = 0;
 let particleCanvas, particleCtx;
 let screenShake = 0;
-
-// Particle system
 let gameParticles = [];
+let chainLightning = [];
+let achievements = [];
+let currentDimension = 'alpha';
+let dimensionShiftActive = false;
 
-function createParticle(x, y, color = '#ffaa00', count = 8) {
+// Quantum abilities system
+let abilities = {
+    quantumDash: { cooldown: 3000, lastUsed: 0, energyCost: 20 },
+    timeDilation: { cooldown: 8000, lastUsed: 0, energyCost: 30, active: false, duration: 3000 },
+    magneticField: { cooldown: 5000, lastUsed: 0, energyCost: 25, active: false, duration: 4000 },
+    dimensionShift: { cooldown: 12000, lastUsed: 0, energyCost: 40, active: false, duration: 5000 }
+};
+
+// Advanced AI system
+let swarmIntelligence = {
+    targetPriority: 'player',
+    formationPattern: 'surround',
+    adaptationLevel: 1,
+    lastUpdate: 0
+};
+
+// Dynamic level generation
+let levelGeneration = {
+    seed: Math.random(),
+    complexity: 1,
+    hazardDensity: 0.1,
+    powerupDensity: 0.05
+};
+
+// Boss battle system
+let bossActive = false;
+let boss = null;
+
+function isMobile() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+}
+
+function init() {
+    initQuantumAudio();
+    
+    scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x000011, 20, 80);
+
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(5, 12, 5);
+
+    renderer = new THREE.WebGLRenderer({ 
+        antialias: true, 
+        alpha: false,
+        powerPreference: "high-performance"
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setClearColor(0x000011);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+    document.getElementById('gameContainer').appendChild(renderer.domElement);
+
+    // Particle canvas setup
+    particleCanvas = document.getElementById('particleCanvas');
+    particleCtx = particleCanvas.getContext('2d');
+    particleCanvas.width = window.innerWidth;
+    particleCanvas.height = window.innerHeight;
+
+    // Revolutionary lighting system
+    scene.add(new THREE.AmbientLight(0x111155, 0.3));
+    
+    const mainLight = new THREE.DirectionalLight(0x4488ff, 0.8);
+    mainLight.position.set(20, 30, 15);
+    mainLight.castShadow = true;
+    mainLight.shadow.mapSize.width = 4096;
+    mainLight.shadow.mapSize.height = 4096;
+    scene.add(mainLight);
+    
+    // Dynamic quantum lighting
+    for (let i = 0; i < 6; i++) {
+        const light = new THREE.PointLight(0x00ffff, 0.6, 25);
+        light.position.set(
+            (Math.random() - 0.5) * mazeSize,
+            8 + Math.random() * 4,
+            (Math.random() - 0.5) * mazeSize
+        );
+        scene.add(light);
+        
+        // Animate lights
+        setInterval(() => {
+            light.intensity = 0.4 + Math.random() * 0.4;
+            const hue = Math.random();
+            light.color.setHSL(hue, 1, 0.6);
+        }, 2000 + Math.random() * 3000);
+    }
+
+    createQuantumPlayer();
+    createDynamicMaze();
+    setupAdvancedEventListeners();
+    animate();
+    
+    mobileMode = isMobile();
+    setupMobileControls();
+    
+    document.getElementById('instructions').style.display = 'block';
+    updateQuantumUI();
+    updateAbilityCooldowns();
+}
+
+function createQuantumPlayer() {
+    const geometry = new THREE.OctahedronGeometry(0.4, 3);
+    const material = new THREE.MeshPhongMaterial({ 
+        color: 0x00ffff, 
+        shininess: 200, 
+        transparent: true, 
+        opacity: 0.9,
+        emissive: 0x003344,
+        specular: 0x88ffff
+    });
+    player = new THREE.Mesh(geometry, material);
+    player.position.set(3, 0.5, 3);
+    player.castShadow = true;
+    
+    // Quantum trail system
+    player.userData.trail = [];
+    
+    scene.add(player);
+}
+
+function createDynamicMaze() {
+    // Clean up existing objects
+    if (maze) scene.remove(maze);
+    enemies.forEach(enemy => scene.remove(enemy));
+    quantumData.forEach(item => scene.remove(item));
+    projectiles.forEach(proj => scene.remove(proj));
+    powerups.forEach(p => scene.remove(p));
+    
+    enemies = []; quantumData = []; projectiles = []; powerups = [];
+    gameParticles = []; chainLightning = [];
+    
+    maze = new THREE.Group();
+
+    // Revolutionary procedural generation
+    generateQuantumMaze();
+
+    scene.add(maze);
+    updateQuantumUI();
+}
+
+function generateQuantumMaze() {
+    const complexity = Math.min(level * 0.3 + 1, 4);
+    mazeLayout = [];
+    
+    // Initialize empty maze
+    for (let z = 0; z < mazeSize; z++) {
+        mazeLayout[z] = [];
+        for (let x = 0; x < mazeSize; x++) {
+            mazeLayout[z][x] = 0;
+        }
+    }
+    
+    // Create border walls
+    for (let i = 0; i < mazeSize; i++) {
+        mazeLayout[0][i] = 1;
+        mazeLayout[mazeSize-1][i] = 1;
+        mazeLayout[i][0] = 1;
+        mazeLayout[i][mazeSize-1] = 1;
+    }
+    
+    // Generate quantum structures
+    const structures = Math.floor(complexity * 3);
+    for (let s = 0; s < structures; s++) {
+        const centerX = 5 + Math.floor(Math.random() * (mazeSize - 10));
+        const centerZ = 5 + Math.floor(Math.random() * (mazeSize - 10));
+        const size = 2 + Math.floor(Math.random() * 4);
+        
+        for (let z = centerZ; z < centerZ + size && z < mazeSize; z++) {
+            for (let x = centerX; x < centerX + size && x < mazeSize; x++) {
+                if (Math.random() < 0.7) {
+                    mazeLayout[z][x] = 1;
+                }
+            }
+        }
+    }
+    
+    // Create walls with quantum aesthetics
+    for (let z = 0; z < mazeSize; z++) {
+        for (let x = 0; x < mazeSize; x++) {
+            if (mazeLayout[z][x] === 1) {
+                const wallGeometry = new THREE.BoxGeometry(1, 2.5, 1);
+                const wallMaterial = new THREE.MeshPhongMaterial({ 
+                    color: 0x001133,
+                    emissive: 0x000022,
+                    shininess: 100,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                const wall = new THREE.Mesh(wallGeometry, wallMaterial);
+                wall.position.set(x, 1.25, z);
+                wall.castShadow = true;
+                wall.receiveShadow = true;
+                maze.add(wall);
+                
+                // Add quantum glow effect
+                if (Math.random() < 0.3) {
+                    const glowGeometry = new THREE.PlaneGeometry(1.2, 2.7);
+                    const glowMaterial = new THREE.MeshBasicMaterial({
+                        color: 0x00ffff,
+                        transparent: true,
+                        opacity: 0.1,
+                        side: THREE.DoubleSide
+                    });
+                    const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                    glow.position.copy(wall.position);
+                    maze.add(glow);
+                }
+            }
+        }
+    }
+    
+    // Enhanced quantum floor
+    const floorGeometry = new THREE.PlaneGeometry(mazeSize, mazeSize, mazeSize, mazeSize);
+    const floorMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0x001122,
+        side: THREE.DoubleSide,
+        shininess: 50,
+        transparent: true,
+        opacity: 0.8
+    });
+    
+    // Add procedural height variation
+    const positions = floorGeometry.attributes.position;
+    for (let i = 0; i < positions.count; i++) {
+        const height = Math.sin(positions.getX(i) * 0.5) * Math.cos(positions.getZ(i) * 0.5) * 0.1;
+        positions.setY(i, height);
+    }
+    floorGeometry.computeVertexNormals();
+    
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.set(mazeSize/2 - 0.5, 0, mazeSize/2 - 0.5);
+    floor.receiveShadow = true;
+    maze.add(floor);
+    
+    // Quantum data generation
+    const dataCount = Math.min(12 + level * 2, 30);
+    for (let i = 0; i < dataCount; i++) {
+        let x, z, attempts = 0;
+        do { 
+            x = Math.floor(Math.random() * mazeSize); 
+            z = Math.floor(Math.random() * mazeSize);
+            attempts++;
+        } while ((mazeLayout[z][x] === 1 || (x <= 6 && z <= 6)) && attempts < 50);
+        
+        if (attempts < 50) {
+            const dataItem = createQuantumData();
+            dataItem.position.set(x, 0.5, z);
+            quantumData.push(dataItem);
+            scene.add(dataItem);
+        }
+    }
+    
+    // Enhanced power-up system
+    const powerupCount = Math.min(2 + Math.floor(level * 0.5), 6);
+    for (let i = 0; i < powerupCount; i++) {
+        let x, z, attempts = 0;
+        do { 
+            x = Math.floor(Math.random() * mazeSize); 
+            z = Math.floor(Math.random() * mazeSize);
+            attempts++;
+        } while ((mazeLayout[z][x] === 1 || (x <= 6 && z <= 6)) && attempts < 50);
+        
+        if (attempts < 50) {
+            const types = ['energy', 'speed', 'shield', 'quantum'];
+            const powerupType = types[Math.floor(Math.random() * types.length)];
+            const powerup = createAdvancedPowerup(powerupType);
+            powerup.position.set(x, 0.8, z);
+            powerups.push(powerup);
+            scene.add(powerup);
+        }
+    }
+    
+    // Revolutionary AI enemy generation
+    generateSwarmEnemies();
+    
+    // Boss battle every 5 levels
+    if (level % 5 === 0 && level > 1) {
+        spawnQuantumBoss();
+    }
+}
+
+function createQuantumData() {
+    const geometries = [
+        new THREE.OctahedronGeometry(0.25, 2),
+        new THREE.TetrahedronGeometry(0.3),
+        new THREE.IcosahedronGeometry(0.22, 1)
+    ];
+    const geometry = geometries[Math.floor(Math.random() * geometries.length)];
+    
+    const hue = 0.15 + Math.random() * 0.1; // Golden quantum range
+    const material = new THREE.MeshPhongMaterial({ 
+        color: new THREE.Color().setHSL(hue, 1, 0.8), 
+        emissive: new THREE.Color().setHSL(hue, 0.8, 0.3),
+        shininess: 150,
+        specular: 0xffffff,
+        transparent: true,
+        opacity: 0.9
+    });
+    
+    const item = new THREE.Mesh(geometry, material);
+    item.castShadow = true;
+    item.userData = { 
+        rotationSpeed: Math.random() * 0.08 + 0.04, 
+        bobSpeed: Math.random() * 0.008 + 0.005, 
+        bobOffset: Math.random() * Math.PI * 2,
+        pulseSpeed: Math.random() * 0.02 + 0.01
+    };
+    
+    // Add quantum field effect
+    const fieldGeometry = new THREE.SphereGeometry(0.8, 16, 8);
+    const fieldMaterial = new THREE.MeshBasicMaterial({
+        color: 0xffff00,
+        transparent: true,
+        opacity: 0.05,
+        side: THREE.BackSide
+    });
+    const field = new THREE.Mesh(fieldGeometry, fieldMaterial);
+    item.add(field);
+    
+    return item;
+}
+
+function createAdvancedPowerup(type) {
+    const powerup = new THREE.Group();
+    
+    const geometries = {
+        energy: new THREE.SphereGeometry(0.25, 16, 12),
+        speed: new THREE.ConeGeometry(0.2, 0.6, 8),
+        shield: new THREE.RingGeometry(0.15, 0.35, 12),
+        quantum: new THREE.TorusKnotGeometry(0.2, 0.08, 64, 16)
+    };
+    
+    const colors = {
+        energy: { main: 0x00ff00, emissive: 0x004400 },
+        speed: { main: 0xffff00, emissive: 0x444400 },
+        shield: { main: 0x0088ff, emissive: 0x002244 },
+        quantum: { main: 0xff00ff, emissive: 0x440044 }
+    };
+    
+    const geometry = geometries[type];
+    const color = colors[type];
+    
+    const material = new THREE.MeshPhongMaterial({ 
+        color: color.main, 
+        emissive: color.emissive,
+        shininess: 150,
+        specular: 0xffffff,
+        transparent: true,
+        opacity: 0.95
+    });
+    
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.castShadow = true;
+    powerup.add(mesh);
+    
+    powerup.userData = { type: type };
+    return powerup;
+}
+
+function generateSwarmEnemies() {
+    const baseEnemyCount = Math.min(8 + level * 2, 25);
+    const enemyTypes = ['hunter', 'guardian', 'scout', 'destroyer'];
+    
+    for (let i = 0; i < baseEnemyCount; i++) {
+        let x, z, attempts = 0;
+        do { 
+            x = Math.floor(Math.random() * mazeSize); 
+            z = Math.floor(Math.random() * mazeSize);
+            attempts++;
+        } while ((mazeLayout[z][x] === 1 || distance2D(x, z, 3, 3) < 10) && attempts < 50);
+        
+        if (attempts < 50) {
+            const enemyType = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
+            const enemy = createAdvancedEnemy(enemyType);
+            enemy.position.set(x, 1, z);
+            enemies.push(enemy);
+            scene.add(enemy);
+        }
+    }
+}
+
+function createAdvancedEnemy(type) {
+    const enemy = new THREE.Group();
+    
+    const configs = {
+        hunter: { 
+            color: 0xff4444, 
+            emissive: 0x440000, 
+            speed: 0.015, 
+            health: 2, 
+            aggroRange: 8,
+            size: 0.3
+        },
+        guardian: { 
+            color: 0x4444ff, 
+            emissive: 0x000044, 
+            speed: 0.008, 
+            health: 5, 
+            aggroRange: 6,
+            size: 0.4
+        },
+        scout: { 
+            color: 0x44ff44, 
+            emissive: 0x004400, 
+            speed: 0.025, 
+            health: 1, 
+            aggroRange: 12,
+            size: 0.2
+        },
+        destroyer: { 
+            color: 0xff44ff, 
+            emissive: 0x440044, 
+            speed: 0.012, 
+            health: 8, 
+            aggroRange: 10,
+            size: 0.5
+        }
+    };
+    
+    const config = configs[type];
+    
+    const material = new THREE.MeshPhongMaterial({ 
+        color: config.color, 
+        emissive: config.emissive,
+        shininess: 80,
+        specular: 0x444444,
+        transparent: true,
+        opacity: 0.9
+    });
+    
+    // Advanced enemy geometry
+    const bodyGeometry = new THREE.CylinderGeometry(config.size, config.size * 1.2, 1.2, 12);
+    const body = new THREE.Mesh(bodyGeometry, material);
+    body.position.y = 0.6;
+    body.castShadow = true;
+    enemy.add(body);
+    
+    const headGeometry = new THREE.SphereGeometry(config.size * 0.8, 12, 8);
+    const head = new THREE.Mesh(headGeometry, material);
+    head.position.y = 1.4;
+    head.castShadow = true;
+    enemy.add(head);
+    
+    // Enhanced eyes with glow
+    const eyeGeometry = new THREE.SphereGeometry(0.08, 8, 6);
+    const eyeMaterial = new THREE.MeshBasicMaterial({ 
+        color: 0xffffff,
+        emissive: 0xffffff,
+        emissiveIntensity: 0.5
+    });
+    
+    const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    leftEye.position.set(-config.size * 0.4, 1.4, config.size * 0.6);
+    const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    rightEye.position.set(config.size * 0.4, 1.4, config.size * 0.6);
+    enemy.add(leftEye);
+    enemy.add(rightEye);
+    
+    // AI behavior system
+    enemy.userData = { 
+        type: type, 
+        health: config.health,
+        maxHealth: config.health,
+        speed: config.speed,
+        aggroRange: config.aggroRange,
+        direction: new THREE.Vector3(Math.random()-0.5, 0, Math.random()-0.5).normalize(), 
+        nextDirectionChange: Date.now() + Math.random() * 5000 + 3000, 
+        chasing: false,
+        lastPlayerSeen: 0,
+        swarmId: Math.floor(Math.random() * 3),
+        targetPosition: new THREE.Vector3(),
+        formation: 'spread',
+        aiState: 'patrol'
+    };
+    
+    return enemy;
+}
+
+function spawnQuantumBoss() {
+    if (bossActive) return;
+    
+    bossActive = true;
+    playQuantumSound('bossSpawn', 0.8);
+    
+    // Find suitable spawn position
+    let x, z;
+    do { 
+        x = Math.floor(Math.random() * mazeSize); 
+        z = Math.floor(Math.random() * mazeSize);
+    } while (mazeLayout[z][x] === 1 || distance2D(x, z, 3, 3) < 15);
+    
+    boss = new THREE.Group();
+    
+    const material = new THREE.MeshPhongMaterial({ 
+        color: 0xff0088, 
+        emissive: 0x330022,
+        shininess: 200,
+        specular: 0xffffff,
+        transparent: true,
+        opacity: 0.95
+    });
+    
+    // Massive boss geometry
+    const coreGeometry = new THREE.SphereGeometry(1.5, 24, 16);
+    const core = new THREE.Mesh(coreGeometry, material);
+    core.position.y = 2;
+    core.castShadow = true;
+    boss.add(core);
+    
+    // Orbiting components
+    for (let i = 0; i < 6; i++) {
+        const orbitGeometry = new THREE.OctahedronGeometry(0.3, 2);
+        const orbitMaterial = new THREE.MeshPhongMaterial({
+            color: 0x00ffff,
+            emissive: 0x003333,
+            transparent: true,
+            opacity: 0.8
+        });
+        const orbit = new THREE.Mesh(orbitGeometry, orbitMaterial);
+        orbit.position.set(
+            Math.cos(i * Math.PI / 3) * 2.5,
+            2 + Math.sin(i * Math.PI / 3) * 0.5,
+            Math.sin(i * Math.PI / 3) * 2.5
+        );
+        boss.add(orbit);
+    }
+    
+    boss.position.set(x, 0, z);
+    boss.userData = { 
+        type: 'quantum_boss',
+        health: 50 + level * 10,
+        maxHealth: 50 + level * 10,
+        speed: 0.02,
+        attackCooldown: 0,
+        phase: 1,
+        orbitSpeed: 0.02
+    };
+    
+    scene.add(boss);
+    
+    // Boss announcement
+    showAchievement('QUANTUM BOSS MATERIALIZED!', '#ff0088');
+}
+
+function distance2D(x1, z1, x2, z2) { 
+    return Math.sqrt((x1-x2)**2 + (z1-z2)**2); 
+}
+
+function distance3D(pos1, pos2) {
+    return pos1.distanceTo(pos2);
+}
+
+function createQuantumParticle(x, y, color = '#00ffff', count = 12, speed = 5) {
     for (let i = 0; i < count; i++) {
         gameParticles.push({
             x: x,
             y: y,
-            vx: (Math.random() - 0.5) * 8,
-            vy: (Math.random() - 0.5) * 8,
+            vx: (Math.random() - 0.5) * speed * 2,
+            vy: (Math.random() - 0.5) * speed * 2,
             life: 1.0,
-            decay: 0.02 + Math.random() * 0.02,
+            decay: 0.015 + Math.random() * 0.02,
             color: color,
-            size: 3 + Math.random() * 4
+            size: 4 + Math.random() * 6,
+            type: 'quantum',
+            glow: true
         });
     }
 }
 
-function updateParticles() {
+function createChainLightning(start, end, intensity = 1) {
+    const segments = 8;
+    const points = [];
+    
+    for (let i = 0; i <= segments; i++) {
+        const t = i / segments;
+        const x = start.x + (end.x - start.x) * t + (Math.random() - 0.5) * 20 * intensity;
+        const y = start.y + (end.y - start.y) * t + (Math.random() - 0.5) * 20 * intensity;
+        points.push({ x, y });
+    }
+    
+    chainLightning.push({
+        points: points,
+        life: 0.3,
+        color: combo > 10 ? '#ff00ff' : combo > 5 ? '#ffff00' : '#00ffff',
+        width: 2 + intensity
+    });
+    
+    playQuantumSound('chainLightning', 0.4, 1 + Math.random() * 0.5);
+}
+
+function updateQuantumParticles() {
     for (let i = gameParticles.length - 1; i >= 0; i--) {
         const p = gameParticles[i];
         p.x += p.vx;
@@ -502,17 +1302,53 @@ function updateParticles() {
             gameParticles.splice(i, 1);
         }
     }
+    
+    // Update chain lightning
+    for (let i = chainLightning.length - 1; i >= 0; i--) {
+        chainLightning[i].life -= 0.05;
+        if (chainLightning[i].life <= 0) {
+            chainLightning.splice(i, 1);
+        }
+    }
 }
 
-function renderParticles() {
+function renderQuantumEffects() {
     if (!particleCtx) return;
     
     particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
     
+    // Render chain lightning
+    chainLightning.forEach(lightning => {
+        particleCtx.save();
+        particleCtx.globalAlpha = lightning.life;
+        particleCtx.strokeStyle = lightning.color;
+        particleCtx.lineWidth = lightning.width;
+        particleCtx.shadowBlur = 10;
+        particleCtx.shadowColor = lightning.color;
+        
+        particleCtx.beginPath();
+        lightning.points.forEach((point, index) => {
+            if (index === 0) {
+                particleCtx.moveTo(point.x, point.y);
+            } else {
+                particleCtx.lineTo(point.x, point.y);
+            }
+        });
+        particleCtx.stroke();
+        particleCtx.restore();
+    });
+    
+    // Render quantum particles
     gameParticles.forEach(p => {
         particleCtx.save();
         particleCtx.globalAlpha = p.life;
         particleCtx.fillStyle = p.color;
+        
+        if (p.glow) {
+            particleCtx.shadowBlur = 15;
+            particleCtx.shadowColor = p.color;
+        }
+        
         particleCtx.beginPath();
         particleCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         particleCtx.fill();
@@ -520,100 +1356,28 @@ function renderParticles() {
     });
 }
 
-function addScreenShake(intensity = 5) {
+function addQuantumShake(intensity = 8) {
     screenShake = intensity;
     document.getElementById('gameContainer').classList.add('screen-shake');
     setTimeout(() => {
         document.getElementById('gameContainer').classList.remove('screen-shake');
-    }, 100);
+    }, 150);
 }
 
-function isMobile() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-}
-
-function init() {
-    initAudio();
-    
-    scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x1a1a2e, 12, 45);
-
-    // Perfect camera angle for crystal clear visibility - never hidden!
-    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(2, 8.5, 2); /
-
-    renderer = new THREE.WebGLRenderer({ 
-        antialias: true, 
-        alpha: false,
-        powerPreference: "high-performance"
-    });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x0f0f23);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    document.getElementById('gameContainer').appendChild(renderer.domElement);
-
-    // Particle canvas setup
-    particleCanvas = document.getElementById('particleCanvas');
-    particleCtx = particleCanvas.getContext('2d');
-    particleCanvas.width = window.innerWidth;
-    particleCanvas.height = window.innerHeight;
-
-    minimapCanvas = document.getElementById('minimap');
-    minimapCtx = minimapCanvas.getContext('2d');
-    const mapSize = window.innerWidth <= 480 ? 100 : window.innerWidth <= 768 ? 140 : 180;
-    minimapCanvas.width = mapSize;
-    minimapCanvas.height = mapSize;
-
-    // Enhanced lighting system
-    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-    
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
-    directionalLight.position.set(15, 25, 10);
-    directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 2048;
-    directionalLight.shadow.mapSize.height = 2048;
-    directionalLight.shadow.camera.near = 0.5;
-    directionalLight.shadow.camera.far = 60;
-    scene.add(directionalLight);
-    
-    // Dynamic colored lighting
-    const pointLight1 = new THREE.PointLight(0x00ffaa, 0.5, 20);
-    pointLight1.position.set(8, 6, 8);
-    scene.add(pointLight1);
-    
-    const pointLight2 = new THREE.PointLight(0xaa00ff, 0.4, 18);
-    pointLight2.position.set(18, 6, 18);
-    scene.add(pointLight2);
-    
-    const pointLight3 = new THREE.PointLight(0xffaa00, 0.3, 15);
-    pointLight3.position.set(12, 6, 12);
-    scene.add(pointLight3);
-
-    createPlayer();
-    createMaze();
-    setupEventListeners();
-    animate();
-    loadLeaderboard();
-    
-    mobileMode = isMobile();
-    setupMobileControls();
-    
-    gameState = 'playing';
-    updateComboDisplay();
+function addQuantumGlitch() {
+    document.getElementById('gameContainer').classList.add('quantum-glitch');
+    setTimeout(() => {
+        document.getElementById('gameContainer').classList.remove('quantum-glitch');
+    }, 300);
 }
 
 function setupMobileControls() {
     const controls = document.getElementById('mobileControls');
-    const shootBtn = document.getElementById('shootButton');
     
     if (mobileMode) {
         controls.style.display = 'flex';
-        shootBtn.style.display = 'flex';
     } else {
         controls.style.display = 'none';
-        shootBtn.style.display = 'none';
     }
 
     function setMove(dir, val) { 
@@ -621,11 +1385,11 @@ function setupMobileControls() {
         const btn = document.getElementById('mobile' + dir.charAt(0).toUpperCase() + dir.slice(1));
         if (btn) {
             if (val) {
-                btn.style.background = 'linear-gradient(145deg, #00ff88, #00cc66)';
+                btn.style.background = 'linear-gradient(145deg, #00ffff, #00aacc)';
                 btn.style.color = '#000';
             } else {
-                btn.style.background = 'linear-gradient(145deg, rgba(0,0,0,0.9), rgba(20,20,20,0.9))';
-                btn.style.color = '#00ff88';
+                btn.style.background = 'linear-gradient(145deg, rgba(0,0,0,0.9), rgba(0,20,40,0.9))';
+                btn.style.color = '#00ffff';
             }
         }
     }
@@ -666,390 +1430,21 @@ function setupMobileControls() {
             });
         }
     });
-
-    if (shootBtn) {
-        shootBtn.addEventListener('touchstart', function(e){
-            e.preventDefault();
-            shoot();
-        }, {passive: false});
-        
-        shootBtn.addEventListener('click', function(e){
-            e.preventDefault();
-            if (!mobileMode) return;
-            shoot();
-        });
-    }
-
-    // Prevent mobile browser behaviors
-    document.addEventListener('touchstart', function(e) {
-        if (e.touches.length > 1) e.preventDefault();
-    }, {passive: false});
-
-    document.addEventListener('touchend', function(e) {
-        if (e.touches.length > 1) e.preventDefault();
-    }, {passive: false});
-
-    document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
-    document.addEventListener('gesturechange', function(e) { e.preventDefault(); });
-    document.addEventListener('gestureend', function(e) { e.preventDefault(); });
 }
 
-function createMaze() {
-    // Clean up existing objects
-    if (maze) scene.remove(maze);
-    customers.forEach(customer => scene.remove(customer));
-    clutter.forEach(item => scene.remove(item));
-    projectiles.forEach(proj => scene.remove(proj));
-    powerups.forEach(p => scene.remove(p));
-    customers = []; clutter = []; projectiles = []; powerups = [];
-    
-    maze = new THREE.Group();
-
-    // ULTRA-SIMPLE WIDE OPEN MAZE - Perfect visibility and flow
-    mazeLayout = [
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,1],
-        [1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,1],
-        [1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-    ];
-
-    // Create walls with enhanced visuals
-    for (let z = 0; z < mazeSize; z++) {
-        for (let x = 0; x < mazeSize; x++) {
-            if (mazeLayout[z][x] === 1) {
-                const wallGeometry = new THREE.BoxGeometry(1, 2.2, 1);
-                const wallMaterial = new THREE.MeshPhongMaterial({ 
-                    color: 0x4a3728, 
-                    map: createShelfTexture(),
-                    shininess: 20,
-                    specular: 0x222222
-                });
-                const wall = new THREE.Mesh(wallGeometry, wallMaterial);
-                wall.position.set(x, 1.1, z);
-                wall.castShadow = true;
-                wall.receiveShadow = true;
-                maze.add(wall);
-            }
-        }
-    }
-
-    // Enhanced floor with pattern
-    const floorGeometry = new THREE.PlaneGeometry(mazeSize, mazeSize);
-    const floorMaterial = new THREE.MeshPhongMaterial({ 
-        color: 0xe8e8e8,
-        side: THREE.DoubleSide,
-        shininess: 5,
-        map: createFloorTexture()
-    });
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.set(mazeSize/2 - 0.5, 0, mazeSize/2 - 0.5);
-    floor.receiveShadow = true;
-    maze.add(floor);
-
-    // Progressive clutter placement for better game flow
-    let clutterCount = Math.min(12 + (level-1)*3, 35);
-    for (let i = 0; i < clutterCount; i++) {
-        let x, z;
-        do { 
-            x = Math.floor(Math.random() * mazeSize); 
-            z = Math.floor(Math.random() * mazeSize); 
-        } while (mazeLayout[z][x] === 1 || (x <= 4 && z <= 4));
-        
-        const clutterItem = createClutterItem();
-        clutterItem.position.set(x, 0.35, z);
-        clutter.push(clutterItem);
-        scene.add(clutterItem);
-    }
-
-    // Enhanced power-up system
-    const powerupChance = Math.min(0.3 + (level * 0.1), 0.9);
-    if (Math.random() < powerupChance) {
-        for (let i = 0; i < Math.min(level, 3); i++) {
-            let x, z;
-            do { 
-                x = Math.floor(Math.random() * mazeSize); 
-                z = Math.floor(Math.random() * mazeSize); 
-            } while (mazeLayout[z][x] === 1 || (x <= 5 && z <= 5));
-            
-            const powerupType = Math.random() < 0.7 ? 'health' : 'speed';
-            const powerup = createPowerup(powerupType);
-            powerup.position.set(x, 0.6, z);
-            powerups.push(powerup);
-            scene.add(powerup);
-        }
-    }
-
-    // Balanced customer placement for optimal challenge
-    let goodCustomers = Math.min(3 + Math.floor(level*0.5), 8);
-    let badCustomers = Math.min(Math.floor(level*1.2), 15);
-    
-    for (let i = 0; i < goodCustomers; i++) {
-        let x, z;
-        do { 
-            x = Math.floor(Math.random() * mazeSize); 
-            z = Math.floor(Math.random() * mazeSize);
-        } while (mazeLayout[z][x] === 1 || (x <= 6 && z <= 6) || distance2D(x, z, 2, 2) < 6);
-        
-        const customer = createCustomer('good');
-        customer.position.set(x, 0.8, z);
-        customer.userData = { 
-            type: 'good', 
-            direction: new THREE.Vector3(Math.random()-0.5,0,Math.random()-0.5).normalize(), 
-            nextDirectionChange: Date.now()+Math.random()*5000+4000, 
-            chasing: false, 
-            health: 1,
-            speed: customerSpeed * 0.4
-        };
-        customers.push(customer);
-        scene.add(customer);
-    }
-    
-    for (let i = 0; i < badCustomers; i++) {
-        let x, z;
-        do { 
-            x = Math.floor(Math.random() * mazeSize); 
-            z = Math.floor(Math.random() * mazeSize);
-        } while (mazeLayout[z][x] === 1 || (x <= 6 && z <= 6) || distance2D(x, z, 2, 2) < 6);
-        
-        const customer = createCustomer('bad');
-        customer.position.set(x, 0.8, z);
-        customer.userData = { 
-            type: 'bad', 
-            direction: new THREE.Vector3(Math.random()-0.5,0,Math.random()-0.5).normalize(), 
-            nextDirectionChange: Date.now()+Math.random()*4000+3000, 
-            chasing: false, 
-            health: 3,
-            speed: customerSpeed * 0.8,
-            lastPlayerSeen: 0,
-            aggroRange: 5 + level * 0.5
-        };
-        customers.push(customer);
-        scene.add(customer);
-    }
-    
-    scene.add(maze);
-    updateUI();
-}
-
-function createPlayer() {
-    const geometry = new THREE.OctahedronGeometry(0.3, 2);
-    const material = new THREE.MeshPhongMaterial({ 
-        color: 0x00ffdd, 
-        shininess: 150, 
-        transparent: true, 
-        opacity: 0.95,
-        emissive: 0x002233,
-        specular: 0x00aaff
-    });
-    player = new THREE.Mesh(geometry, material);
-    player.position.set(2, 0.4, 2);
-    player.castShadow = true;
-    scene.add(player);
-}
-
-function createShelfTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = 256;
-    const ctx = canvas.getContext('2d');
-    
-    // Rich wood texture
-    const gradient = ctx.createLinearGradient(0, 0, 256, 256);
-    gradient.addColorStop(0, '#4a3728');
-    gradient.addColorStop(0.5, '#5d4037');
-    gradient.addColorStop(1, '#3e2723');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 256, 256);
-    
-    // Wood grain details
-    for (let i = 0; i < 300; i++) {
-        ctx.fillStyle = `rgba(${74+Math.random()*40},${55+Math.random()*25},${40+Math.random()*20},0.3)`;
-        ctx.fillRect(Math.random()*256, Math.random()*256, 2, 2);
-    }
-    
-    return new THREE.CanvasTexture(canvas);
-}
-
-function createFloorTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = 128;
-    const ctx = canvas.getContext('2d');
-    
-    // Subtle tile pattern
-    ctx.fillStyle = '#e8e8e8';
-    ctx.fillRect(0, 0, 128, 128);
-    
-    ctx.strokeStyle = '#d0d0d0';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 128; i += 32) {
-        ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i, 128);
-        ctx.moveTo(0, i);
-        ctx.lineTo(128, i);
-        ctx.stroke();
-    }
-    
-    return new THREE.CanvasTexture(canvas);
-}
-
-function createClutterItem() {
-    const geometries = [
-        new THREE.BoxGeometry(0.35,0.35,0.35), 
-        new THREE.SphereGeometry(0.22,12,8), 
-        new THREE.CylinderGeometry(0.12,0.12,0.35,12),
-        new THREE.ConeGeometry(0.15, 0.4, 8)
-    ];
-    const geometry = geometries[Math.floor(Math.random()*geometries.length)];
-    
-    // More vibrant, appealing colors
-    const hue = 0.12 + Math.random() * 0.08; // Golden yellow range
-    const material = new THREE.MeshPhongMaterial({ 
-        color: new THREE.Color().setHSL(hue, 0.9, 0.7), 
-        emissive: new THREE.Color().setHSL(hue, 0.7, 0.2),
-        shininess: 80,
-        specular: 0xffffff
-    });
-    const item = new THREE.Mesh(geometry, material);
-    item.castShadow = true;
-    item.userData = { 
-        rotationSpeed: Math.random()*0.06+0.02, 
-        bobSpeed: Math.random()*0.006+0.003, 
-        bobOffset: Math.random()*Math.PI*2 
-    };
-    return item;
-}
-
-function createCustomer(type) {
-    const customer = new THREE.Group();
-    const color = type === 'bad' ? 0xff4444 : 0x44ff44;
-    const emissiveColor = type === 'bad' ? 0x330000 : 0x003300;
-    
-    const material = new THREE.MeshPhongMaterial({ 
-        color: color, 
-        emissive: emissiveColor,
-        shininess: 50,
-        specular: 0x444444
-    });
-    
-    // Enhanced character design
-    const bodyGeometry = new THREE.CylinderGeometry(0.25,0.3,0.9,12);
-    const body = new THREE.Mesh(bodyGeometry, material);
-    body.position.y = 0.45;
-    body.castShadow = true;
-    customer.add(body);
-    
-    const headGeometry = new THREE.SphereGeometry(0.22,12,8);
-    const head = new THREE.Mesh(headGeometry, material);
-    head.position.y = 1.1;
-    head.castShadow = true;
-    customer.add(head);
-    
-    // Detailed eyes
-    const eyeGeometry = new THREE.SphereGeometry(0.05,8,6);
-    const eyeMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 100 });
-    const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-    leftEye.position.set(-0.08,1.15,0.18);
-    const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-    rightEye.position.set(0.08,1.15,0.18);
-    customer.add(leftEye);
-    customer.add(rightEye);
-    
-    // Pupils
-    const pupilGeometry = new THREE.SphereGeometry(0.02,6,4);
-    const pupilMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
-    const leftPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
-    leftPupil.position.set(-0.08,1.15,0.2);
-    const rightPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
-    rightPupil.position.set(0.08,1.15,0.2);
-    customer.add(leftPupil);
-    customer.add(rightPupil);
-    
-    customer.userData = { type: type, health: type==='bad'?3:1 };
-    return customer;
-}
-
-function createPowerup(type) {
-    const geometry = new THREE.TorusGeometry(0.22, 0.06, 12, 24);
-    const colors = {
-        health: { main: 0xff44ff, emissive: 0x440044 },
-        speed: { main: 0x44ff44, emissive: 0x004400 }
-    };
-    const color = colors[type] || colors.health;
-    
-    const material = new THREE.MeshPhongMaterial({ 
-        color: color.main, 
-        emissive: color.emissive,
-        shininess: 120,
-        specular: 0xffffff
-    });
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.castShadow = true;
-    mesh.userData = { type: type };
-    return mesh;
-}
-
-function distance2D(x1,z1,x2,z2) { 
-    return Math.sqrt((x1-x2)**2+(z1-z2)**2); 
-}
-
-function updateComboDisplay() {
-    const comboEl = document.getElementById('comboDisplay');
-    const multiplierEl = document.getElementById('comboMultiplier');
-    const timerEl = document.getElementById('comboTimer');
-    
-    if (combo > 1) {
-        comboEl.style.display = 'block';
-        multiplierEl.textContent = combo;
-        
-        // Combo timer visualization
-        const timeLeft = Math.max(0, comboTimer - (Date.now() - lastCollectTime));
-        const progress = Math.min(5, Math.floor((timeLeft / comboTimer) * 5));
-        timerEl.textContent = '●'.repeat(progress) + '○'.repeat(5 - progress);
-        
-        // Color based on combo level
-        if (combo >= 10) {
-            comboEl.style.borderColor = '#ff00ff';
-            comboEl.style.color = '#ff00ff';
-        } else if (combo >= 5) {
-            comboEl.style.borderColor = '#ff4444';
-            comboEl.style.color = '#ff4444';
-        } else {
-            comboEl.style.borderColor = '#ffaa00';
-            comboEl.style.color = '#ffaa00';
-        }
-    } else {
-        comboEl.style.display = 'none';
-    }
-}
-
-// Event Listeners
-function setupEventListeners() {
+function setupAdvancedEventListeners() {
     document.addEventListener('keydown', (event) => {
         keys[event.code] = true;
+        
+        // Handle abilities
+        if (event.code === 'KeyQ') useAbility('quantumDash');
+        if (event.code === 'KeyE') useAbility('timeDilation');
+        if (event.code === 'KeyR') useAbility('magneticField');
+        if (event.code === 'KeyT') useAbility('dimensionShift');
+        
         if (event.code === 'KeyP') pauseGame();
-        if (event.code === 'KeyM') toggleMute();
+        if (event.code === 'KeyM') mute = !mute;
+        
         event.preventDefault();
     });
     
@@ -1059,27 +1454,31 @@ function setupEventListeners() {
     
     document.addEventListener('mousedown', (event) => {
         if (gameState === 'playing' && !mobileMode) {
-            shoot();
-            // Resume audio context on first interaction
+            quantumBlast();
             if (audioContext && audioContext.state === 'suspended') {
                 audioContext.resume();
             }
         }
     });
     
-    // Resume audio on touch for mobile
+    // Ability hotkeys on mobile
     document.addEventListener('touchstart', (event) => {
         if (audioContext && audioContext.state === 'suspended') {
             audioContext.resume();
         }
     }, { once: true });
     
+    // Ability button listeners
+    document.getElementById('quantumDash').addEventListener('click', () => useAbility('quantumDash'));
+    document.getElementById('timeDilation').addEventListener('click', () => useAbility('timeDilation'));
+    document.getElementById('magneticField').addEventListener('click', () => useAbility('magneticField'));
+    document.getElementById('dimensionShift').addEventListener('click', () => useAbility('dimensionShift'));
+    
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
         
-        // Update particle canvas
         particleCanvas.width = window.innerWidth;
         particleCanvas.height = window.innerHeight;
         
@@ -1095,125 +1494,232 @@ function setupEventListeners() {
     });
 }
 
-// Enhanced shooting with better feedback
-function shoot() {
+// Revolutionary Quantum Abilities System
+function useAbility(abilityName) {
+    if (gameState !== 'playing') return;
+    
+    const ability = abilities[abilityName];
     const currentTime = Date.now();
-    if (currentTime - lastShot < 120) return;
+    
+    if (currentTime - ability.lastUsed < ability.cooldown) return;
+    if (energy < ability.energyCost) return;
+    
+    energy -= ability.energyCost;
+    ability.lastUsed = currentTime;
+    
+    switch(abilityName) {
+        case 'quantumDash':
+            executeQuantumDash();
+            break;
+        case 'timeDilation':
+            executeTimeDilation();
+            break;
+        case 'magneticField':
+            executeMagneticField();
+            break;
+        case 'dimensionShift':
+            executeDimensionShift();
+            break;
+    }
+    
+    updateQuantumUI();
+    updateAbilityCooldowns();
+}
+
+function executeQuantumDash() {
+    playQuantumSound('quantumDash', 0.6);
+    
+    // Calculate dash direction based on movement
+    let dashDirection = new THREE.Vector3();
+    if (keys['KeyW'] || keys['ArrowUp'] || mobileMove.up) dashDirection.z -= 1;
+    if (keys['KeyS'] || keys['ArrowDown'] || mobileMove.down) dashDirection.z += 1;
+    if (keys['KeyA'] || keys['ArrowLeft'] || mobileMove.left) dashDirection.x -= 1;
+    if (keys['KeyD'] || keys['ArrowRight'] || mobileMove.right) dashDirection.x += 1;
+    
+    if (dashDirection.length() === 0) {
+        dashDirection.z = -1; // Default forward dash
+    }
+    
+    dashDirection.normalize().multiplyScalar(4);
+    
+    // Create quantum trail
+    for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+            const trailPos = worldToScreen(player.position);
+            if (trailPos) {
+                createQuantumParticle(trailPos.x, trailPos.y, '#00ffff', 5, 3);
+            }
+        }, i * 10);
+    }
+    
+    // Execute dash
+    const newPosition = player.position.clone().add(dashDirection);
+    if (!checkCollision(newPosition)) {
+        player.position.copy(newPosition);
+    }
+    
+    // Temporary invincibility
+    player.userData.invincible = true;
+    setTimeout(() => {
+        if (player.userData) player.userData.invincible = false;
+    }, 500);
+    
+    addQuantumShake(5);
+}
+
+function executeTimeDilation() {
+    playQuantumSound('timeDilation', 0.5);
+    
+    abilities.timeDilation.active = true;
+    const duration = abilities.timeDilation.duration;
+    
+    // Visual effect
+    scene.fog.density = 0.02;
+    renderer.toneMappingExposure = 0.6;
+    
+    // Slow down time
+    playerSpeed = basePlayerSpeed * 1.5;
+    
+    setTimeout(() => {
+        abilities.timeDilation.active = false;
+        scene.fog.density = 0.01;
+        renderer.toneMappingExposure = 1.2;
+        playerSpeed = basePlayerSpeed;
+    }, duration);
+    
+    addQuantumGlitch();
+}
+
+function executeMagneticField() {
+    playQuantumSound('magneticField', 0.4);
+    
+    abilities.magneticField.active = true;
+    const duration = abilities.magneticField.duration;
+    
+    // Create magnetic effect visual
+    const magneticField = new THREE.SphereGeometry(8, 32, 16);
+    const magneticMaterial = new THREE.MeshBasicMaterial({
+        color: 0x00ffff,
+        transparent: true,
+        opacity: 0.1,
+        side: THREE.BackSide
+    });
+    const magneticMesh = new THREE.Mesh(magneticField, magneticMaterial);
+    magneticMesh.position.copy(player.position);
+    scene.add(magneticMesh);
+    
+    setTimeout(() => {
+        abilities.magneticField.active = false;
+        scene.remove(magneticMesh);
+    }, duration);
+}
+
+function executeDimensionShift() {
+    playQuantumSound('dimensionShift', 0.7);
+    
+    abilities.dimensionShift.active = true;
+    dimensionShiftActive = true;
+    const duration = abilities.dimensionShift.duration;
+    
+    // Switch dimension
+    currentDimension = currentDimension === 'alpha' ? 'beta' : 'alpha';
+    
+    // Visual effects
+    document.getElementById('dimensionIndicator').style.opacity = '1';
+    renderer.toneMappingExposure = currentDimension === 'beta' ? 2.0 : 1.2;
+    
+    // Modify world
+    if (currentDimension === 'beta') {
+        scene.fog.color.setHex(0x220011);
+        enemies.forEach(enemy => {
+            enemy.material = enemy.children[0].material;
+            enemy.children[0].material.transparent = true;
+            enemy.children[0].material.opacity = 0.3;
+        });
+    } else {
+        scene.fog.color.setHex(0x000011);
+        enemies.forEach(enemy => {
+            if (enemy.children[0].material) {
+                enemy.children[0].material.opacity = 0.9;
+            }
+        });
+    }
+    
+    setTimeout(() => {
+        abilities.dimensionShift.active = false;
+        dimensionShiftActive = false;
+        document.getElementById('dimensionIndicator').style.opacity = '0';
+        currentDimension = 'alpha';
+        scene.fog.color.setHex(0x000011);
+        renderer.toneMappingExposure = 1.2;
+        
+        enemies.forEach(enemy => {
+            if (enemy.children[0].material) {
+                enemy.children[0].material.opacity = 0.9;
+            }
+        });
+    }, duration);
+    
+    addQuantumGlitch();
+}
+
+function updateAbilityCooldowns() {
+    const currentTime = Date.now();
+    
+    Object.keys(abilities).forEach(abilityName => {
+        const ability = abilities[abilityName];
+        const element = document.getElementById(abilityName);
+        const overlay = element.querySelector('.cooldown-overlay');
+        
+        const timeRemaining = Math.max(0, ability.cooldown - (currentTime - ability.lastUsed));
+        const progress = 1 - (timeRemaining / ability.cooldown);
+        
+        if (timeRemaining > 0 || energy < ability.energyCost) {
+            element.classList.add('cooldown');
+            overlay.style.height = `${(1 - progress) * 100}%`;
+        } else {
+            element.classList.remove('cooldown');
+            overlay.style.height = '0%';
+        }
+    });
+}
+
+function quantumBlast() {
+    const currentTime = Date.now();
+    if (currentTime - lastShot < 80) return;
     lastShot = currentTime;
     
-    playSound("shoot", 0.2);
+    playQuantumSound("quantumBlast", 0.3);
     
-    const projectileGeometry = new THREE.SphereGeometry(0.05,8,6);
+    const projectileGeometry = new THREE.SphereGeometry(0.08, 12, 8);
     const projectileMaterial = new THREE.MeshPhongMaterial({ 
         color: 0x00ffff, 
-        emissive: 0x004466,
-        shininess: 150
+        emissive: 0x004488,
+        shininess: 200,
+        transparent: true,
+        opacity: 0.9
     });
     const projectile = new THREE.Mesh(projectileGeometry, projectileMaterial);
     projectile.position.copy(player.position);
-    projectile.position.y += 0.25;
+    projectile.position.y += 0.3;
     
-    const direction = new THREE.Vector3(0,0,-1);
-    projectile.userData = { direction: direction, speed: 0.4, life: 150 };
+    const direction = new THREE.Vector3(0, 0, -1);
+    projectile.userData = { 
+        direction: direction, 
+        speed: 0.6, 
+        life: 200,
+        damage: 1 + Math.floor(combo / 5) // Combo affects damage
+    };
     projectiles.push(projectile);
     scene.add(projectile);
     
-    // Slight screen shake for shooting feedback
-    addScreenShake(1);
-}
-
-function startGame() {
-    gameState = 'playing'; 
-    level = 1; 
-    score = 0; 
-    health = maxHealth;
-    streak = 0;
-    combo = 1;
-    bestCombo = 1;
-    totalCollected = 0;
-    lastCollectTime = Date.now();
-    createMaze(); 
-    player.position.set(2, 0.4, 2);
-    updateComboDisplay();
-}
-
-function restartGame() {
-    document.getElementById('gameOver').style.display = 'none';
-    startGame();
-}
-
-function nextLevel() {
-    document.getElementById('levelComplete').style.display = 'none';
-    gameState = 'playing'; 
-    level++;
-    
-    // Progressive difficulty scaling
-    customerSpeed += 0.0015;
-    playerSpeed += 0.003;
-    
-    // Level completion bonus
-    const levelBonus = level * 100 + (combo * 50);
-    score += levelBonus;
-    document.getElementById('levelBonus').textContent = levelBonus;
-    
-    createMaze();
-    player.position.set(2, 0.4, 2);
-    
-    // Reset combo for new level but keep some streak
-    combo = Math.max(1, Math.floor(combo * 0.5));
-    lastCollectTime = Date.now();
-    updateComboDisplay();
-}
-
-function pauseGame() {
-    if (gameState === 'playing') {
-        gameState = 'paused';
-        document.getElementById("pauseMenu").style.display = "block";
-    } else if (gameState === 'paused') {
-        resumeGame();
-    }
-}
-
-function resumeGame() {
-    if (gameState === 'paused') {
-        gameState = 'playing';
-        document.getElementById("pauseMenu").style.display = "none";
-        lastCollectTime = Date.now(); // Reset combo timer
-    }
-}
-
-function collectPowerup(index) {
-    const p = powerups[index];
-    if (p.userData.type === 'health') {
-        health = Math.min(maxHealth, health+1);
-        playSound("powerup", 0.4);
-    } else if (p.userData.type === 'speed') {
-        playerSpeed += 0.01;
-        playSound("powerup", 0.4);
+    // Quantum blast effect
+    const blastPos = worldToScreen(player.position);
+    if (blastPos) {
+        createQuantumParticle(blastPos.x, blastPos.y, '#00ffff', 8, 4);
     }
     
-    // Particle effect
-    const screenPos = worldToScreen(p.position);
-    if (screenPos) {
-        createParticle(screenPos.x, screenPos.y, '#ff44ff', 15);
-    }
-    
-    scene.remove(p);
-    powerups.splice(index,1);
-    updateUI();
-    addScreenShake(3);
-}
-
-function worldToScreen(worldPos) {
-    const vector = worldPos.clone();
-    vector.project(camera);
-    
-    if (vector.z > 1) return null;
-    
-    return {
-        x: (vector.x + 1) * window.innerWidth / 2,
-        y: (-vector.y + 1) * window.innerHeight / 2
-    };
+    addQuantumShake(2);
 }
 
 function checkCollision(newPos) {
@@ -1244,475 +1750,416 @@ function checkCollision(newPos) {
     return false;
 }
 
-function updatePlayer() {
+function updateQuantumPlayer() {
     if (gameState !== 'playing') return;
     
     const moveVector = new THREE.Vector3();
+    const currentSpeed = abilities.timeDilation.active ? playerSpeed * 1.5 : playerSpeed;
 
-    // Keyboard controls
-    if (keys['KeyW'] || keys['ArrowUp']) moveVector.z -= playerSpeed;
-    if (keys['KeyS'] || keys['ArrowDown']) moveVector.z += playerSpeed;
-    if (keys['KeyA'] || keys['ArrowLeft']) moveVector.x -= playerSpeed;
-    if (keys['KeyD'] || keys['ArrowRight']) moveVector.x += playerSpeed;
-
-    // Mobile controls
-    if (mobileMove.up) moveVector.z -= playerSpeed;
-    if (mobileMove.down) moveVector.z += playerSpeed;
-    if (mobileMove.left) moveVector.x -= playerSpeed;
-    if (mobileMove.right) moveVector.x += playerSpeed;
+    // Enhanced movement
+    if (keys['KeyW'] || keys['ArrowUp'] || mobileMove.up) moveVector.z -= currentSpeed;
+    if (keys['KeyS'] || keys['ArrowDown'] || mobileMove.down) moveVector.z += currentSpeed;
+    if (keys['KeyA'] || keys['ArrowLeft'] || mobileMove.left) moveVector.x -= currentSpeed;
+    if (keys['KeyD'] || keys['ArrowRight'] || mobileMove.right) moveVector.x += currentSpeed;
 
     if (moveVector.length() > 0) {
-        moveVector.normalize().multiplyScalar(playerSpeed);
+        moveVector.normalize().multiplyScalar(currentSpeed);
         const newPosition = player.position.clone().add(moveVector);
         
         if (!checkCollision(newPosition)) {
             player.position.copy(newPosition);
-            // Smooth movement animations
-            player.rotation.y += 0.04;
-            player.rotation.x = Math.sin(Date.now()*0.004)*0.15;
-            player.position.y = 0.4 + Math.sin(Date.now()*0.006)*0.08;
+            
+            // Enhanced movement animations
+            player.rotation.y += 0.06;
+            player.rotation.x = Math.sin(Date.now() * 0.005) * 0.2;
+            player.position.y = 0.5 + Math.sin(Date.now() * 0.008) * 0.1;
+            
+            // Quantum trail effect
+            if (Math.random() < 0.3) {
+                const trailPos = worldToScreen(player.position);
+                if (trailPos) {
+                    createQuantumParticle(trailPos.x, trailPos.y, '#00aaff', 2, 2);
+                }
+            }
         }
     } else {
-        // Idle animations
-        player.rotation.y += 0.015;
-        player.position.y = 0.4 + Math.sin(Date.now()*0.002)*0.04;
+        // Enhanced idle animations
+        player.rotation.y += 0.02;
+        player.position.y = 0.5 + Math.sin(Date.now() * 0.003) * 0.05;
+        
+        // Quantum pulse effect
+        const scale = 1 + Math.sin(Date.now() * 0.004) * 0.1;
+        player.scale.set(scale, scale, scale);
     }
 
-    // Perfect camera tracking
-    camera.position.x = player.position.x;
-    camera.position.z = player.position.z;
-    camera.position.y = 6.5;
+    // Revolutionary camera system
+    const targetCameraPos = new THREE.Vector3(
+        player.position.x,
+        player.position.y + 12 + Math.sin(Date.now() * 0.001) * 2,
+        player.position.z + 2
+    );
+    
+    camera.position.lerp(targetCameraPos, 0.05);
     camera.lookAt(player.position.x, player.position.y, player.position.z);
 
-    // Enhanced collection system with combo mechanics
-    for (let i = clutter.length-1; i>=0; i--) {
-        const distance = player.position.distanceTo(clutter[i].position);
-        if (distance < 0.9) {
-            const currentTime = Date.now();
-            const timeSinceLastCollect = currentTime - lastCollectTime;
-            
-            // Combo system
-            if (timeSinceLastCollect < comboTimer) {
-                combo = Math.min(combo + 1, 99);
-                if (combo > bestCombo) bestCombo = combo;
-            } else {
-                if (combo > 1) {
-                    playSound("comboBreak", 0.3);
-                }
-                combo = 1;
-            }
-            
-            lastCollectTime = currentTime;
-            
-            // Score calculation with combo multiplier
-            const baseScore = 25;
-            const comboBonus = baseScore * (combo - 1) * 0.5;
-            const totalPoints = Math.floor(baseScore + comboBonus);
-            
-            scene.remove(clutter[i]);
-            clutter.splice(i,1);
-            score += totalPoints;
-            streak++;
-            totalCollected++;
-            
-            // Audio feedback based on combo
-            if (combo > 5) {
-                playSound("comboCollect", 0.4);
-            } else {
-                playSound("collect", 0.3);
-            }
-            
-            // Visual feedback
-            const screenPos = worldToScreen(player.position);
-            if (screenPos) {
-                const color = combo > 5 ? '#ffaa00' : '#ffff00';
-                createParticle(screenPos.x, screenPos.y, color, 12);
-            }
-            
-            // Enhanced collection effect
-            player.scale.set(1.3,1.3,1.3);
-            setTimeout(()=>{ 
-                if (player) player.scale.set(1,1,1);
-            }, 180);
-            
-            updateUI();
-            updateComboDisplay();
-            addScreenShake(2);
-            
-            if (clutter.length === 0) {
-                gameState = 'levelComplete';
-                document.getElementById('levelScore').textContent = score;
-                playSound("levelup", 0.5);
-                document.getElementById('levelComplete').style.display = 'block';
-                saveLeaderboard(score);
-            }
+    // Quantum data collection with revolutionary combo system
+    for (let i = quantumData.length - 1; i >= 0; i--) {
+        const distance = player.position.distanceTo(quantumData[i].position);
+        
+        // Magnetic field effect
+        if (abilities.magneticField.active && distance < 8) {
+            const pullDirection = player.position.clone().sub(quantumData[i].position).normalize();
+            quantumData[i].position.add(pullDirection.multiplyScalar(0.1));
+        }
+        
+        if (distance < 1.2) {
+            collectQuantumData(i);
         }
     }
     
-    // Collect power-ups
-    for (let i = powerups.length-1; i>=0; i--) {
+    // Power-up collection
+    for (let i = powerups.length - 1; i >= 0; i--) {
         const distance = player.position.distanceTo(powerups[i].position);
-        if (distance < 0.7) {
-            collectPowerup(i);
+        if (distance < 1.0) {
+            collectAdvancedPowerup(i);
         }
     }
+    
+    // Energy regeneration
+    energy = Math.min(maxEnergy, energy + 0.1);
     
     // Check combo timeout
     if (Date.now() - lastCollectTime > comboTimer && combo > 1) {
         combo = 1;
-        updateComboDisplay();
+        updateQuantumComboDisplay();
+    }
+    
+    updateQuantumComboDisplay();
+}
+
+function collectQuantumData(index) {
+    const item = quantumData[index];
+    const currentTime = Date.now();
+    const timeSinceLastCollect = currentTime - lastCollectTime;
+    
+    // Revolutionary combo system
+    if (timeSinceLastCollect < comboTimer) {
+        combo = Math.min(combo + 1, 99);
+        if (combo > bestCombo) bestCombo = combo;
+        
+        // Chain lightning effect for combos
+        if (combo > 3 && quantumData.length > 1) {
+            const nearbyItems = quantumData.filter((otherItem, otherIndex) => 
+                otherIndex !== index && 
+                item.position.distanceTo(otherItem.position) < 8
+            );
+            
+            nearbyItems.forEach(nearbyItem => {
+                const startPos = worldToScreen(item.position);
+                const endPos = worldToScreen(nearbyItem.position);
+                if (startPos && endPos) {
+                    createChainLightning(startPos, endPos, combo / 10);
+                }
+            });
+        }
+    } else {
+        if (combo > 1) {
+            playQuantumSound("comboBreak", 0.4);
+        }
+        combo = 1;
+    }
+    
+    lastCollectTime = currentTime;
+    
+    // Dynamic scoring system
+    const baseScore = 50;
+    const comboBonus = baseScore * (combo - 1) * 0.8;
+    const levelBonus = level * 10;
+    const totalPoints = Math.floor(baseScore + comboBonus + levelBonus);
+    
+    scene.remove(item);
+    quantumData.splice(index, 1);
+    score += totalPoints;
+    streak++;
+    totalCollected++;
+    
+    // Enhanced audio feedback
+    const pitch = Math.min(2, 1 + combo * 0.1);
+    if (combo > 8) {
+        playQuantumSound("comboCollect", 0.5, pitch);
+    } else {
+        playQuantumSound("collect", 0.4, pitch);
+    }
+    
+    // Revolutionary visual feedback
+    const screenPos = worldToScreen(player.position);
+    if (screenPos) {
+        const colors = ['#ffff00', '#00ffff', '#ff00ff', '#00ff00'];
+        const color = colors[Math.min(combo - 1, colors.length - 1)];
+        createQuantumParticle(screenPos.x, screenPos.y, color, 15 + combo, 6);
+    }
+    
+    // Quantum collection effect
+    player.scale.set(1.4, 1.4, 1.4);
+    setTimeout(() => { 
+        if (player) player.scale.set(1, 1, 1);
+    }, 200);
+    
+    updateQuantumUI();
+    checkAchievements();
+    addQuantumShake(3 + Math.min(combo, 10));
+    
+    // Level completion
+    if (quantumData.length === 0 && !bossActive) {
+        gameState = 'levelComplete';
+        document.getElementById('layerScore').textContent = score;
+        const quantumBonus = combo * 100 + level * 200;
+        document.getElementById('quantumBonus').textContent = quantumBonus;
+        score += quantumBonus;
+        playQuantumSound("levelup", 0.6);
+        document.getElementById('levelComplete').style.display = 'block';
+        
+        showAchievement(`REALITY LAYER ${level} BREACHED!`, '#00ff88');
     }
 }
 
-function updateCustomers() {
+function collectAdvancedPowerup(index) {
+    const powerup = powerups[index];
+    const type = powerup.userData.type;
+    
+    switch(type) {
+        case 'energy':
+            energy = Math.min(maxEnergy, energy + 40);
+            showAchievement('QUANTUM ENERGY RESTORED!', '#00ff00');
+            break;
+        case 'speed':
+            basePlayerSpeed += 0.015;
+            playerSpeed = basePlayerSpeed;
+            showAchievement('VELOCITY MATRIX UPGRADED!', '#ffff00');
+            break;
+        case 'shield':
+            player.userData.shield = true;
+            setTimeout(() => {
+                if (player.userData) player.userData.shield = false;
+            }, 10000);
+            showAchievement('QUANTUM SHIELD ACTIVATED!', '#0088ff');
+            break;
+        case 'quantum':
+            // Reset all ability cooldowns
+            Object.keys(abilities).forEach(abilityName => {
+                abilities[abilityName].lastUsed = 0;
+            });
+            showAchievement('QUANTUM ABILITIES RESTORED!', '#ff00ff');
+            break;
+    }
+    
+    // Quantum power-up effect
+    const screenPos = worldToScreen(powerup.position);
+    if (screenPos) {
+        createQuantumParticle(screenPos.x, screenPos.y, '#ff44ff', 20, 8);
+    }
+    
+    scene.remove(powerup);
+    powerups.splice(index, 1);
+    
+    playQuantumSound("powerup", 0.5);
+    addQuantumShake(5);
+    updateQuantumUI();
+}
+
+function updateAdvancedEnemies() {
     if (gameState !== 'playing') return;
     
-    customers.forEach((customer, customerIndex) => {
-        const currentTime = Date.now();
-        const distanceToPlayer = customer.position.distanceTo(player.position);
+    const timeMultiplier = abilities.timeDilation.active ? 0.3 : 1;
+    const currentTime = Date.now();
+    
+    // Update swarm intelligence
+    if (currentTime - swarmIntelligence.lastUpdate > 2000) {
+        updateSwarmIntelligence();
+        swarmIntelligence.lastUpdate = currentTime;
+    }
+    
+    enemies.forEach((enemy, enemyIndex) => {
+        const distanceToPlayer = enemy.position.distanceTo(player.position);
+        const enemyData = enemy.userData;
         
-        if (customer.userData.type === 'bad') {
-            const aggroRange = customer.userData.aggroRange || 5;
-            if (distanceToPlayer < aggroRange) {
-                customer.userData.chasing = true;
-                customer.userData.lastPlayerSeen = currentTime;
-                const direction = player.position.clone().sub(customer.position).normalize();
-                customer.userData.direction = direction;
-            } else if (currentTime - customer.userData.lastPlayerSeen > 3000) {
-                customer.userData.chasing = false;
-                if (currentTime > customer.userData.nextDirectionChange) {
-                    customer.userData.direction = new THREE.Vector3(
-                        Math.random()-0.5,0,Math.random()-0.5
-                    ).normalize();
-                    customer.userData.nextDirectionChange = currentTime + Math.random()*4000+2000;
+        // Advanced AI behavior system
+        switch(enemyData.aiState) {
+            case 'patrol':
+                if (distanceToPlayer < enemyData.aggroRange) {
+                    enemyData.aiState = 'hunt';
+                    enemyData.chasing = true;
                 }
-            }
-        } else {
-            // Good customers wander more naturally
-            if (currentTime > customer.userData.nextDirectionChange) {
-                customer.userData.direction = new THREE.Vector3(
-                    Math.random()-0.5,0,Math.random()-0.5
-                ).normalize();
-                customer.userData.nextDirectionChange = currentTime+Math.random()*6000+4000;
-            }
-            customer.userData.chasing = false;
+                break;
+                
+            case 'hunt':
+                if (distanceToPlayer > enemyData.aggroRange * 1.5) {
+                    enemyData.aiState = 'patrol';
+                    enemyData.chasing = false;
+                } else {
+                    // Predictive targeting
+                    const playerVelocity = new THREE.Vector3(); // Would track player movement
+                    const predictedPosition = player.position.clone().add(playerVelocity.multiplyScalar(30));
+                    enemyData.targetPosition = predictedPosition;
+                }
+                break;
+                
+            case 'swarm':
+                executeSwarmBehavior(enemy, enemyIndex);
+                break;
         }
         
-        const speed = customer.userData.chasing ? 
-            customer.userData.speed * 1.5 : 
-            customer.userData.speed * 0.6;
-            
-        const moveVector = customer.userData.direction.clone().multiplyScalar(speed);
-        const newPosition = customer.position.clone().add(moveVector);
+        // Enhanced movement with formation behavior
+        let targetDirection;
+        if (enemyData.chasing) {
+            targetDirection = enemyData.targetPosition.clone().sub(enemy.position).normalize();
+        } else {
+            if (currentTime > enemyData.nextDirectionChange) {
+                enemyData.direction = new THREE.Vector3(
+                    Math.random() - 0.5, 0, Math.random() - 0.5
+                ).normalize();
+                enemyData.nextDirectionChange = currentTime + Math.random() * 5000 + 3000;
+            }
+            targetDirection = enemyData.direction;
+        }
+        
+        const speed = enemyData.speed * timeMultiplier * (enemyData.chasing ? 1.5 : 0.8);
+        const moveVector = targetDirection.clone().multiplyScalar(speed);
+        const newPosition = enemy.position.clone().add(moveVector);
         
         if (!checkCollision(newPosition)) {
-            customer.position.copy(newPosition);
+            enemy.position.copy(newPosition);
         } else {
-            customer.userData.direction.multiplyScalar(-1);
+            enemyData.direction.multiplyScalar(-1);
         }
         
         // Enhanced collision with player
-        if (distanceToPlayer < 0.6 && customer.userData.type === 'bad') {
-            const currentTime = Date.now();
-            if (currentTime - lastHitTime > 1000 && !playerInvincible) {
-                health--;
+        if (distanceToPlayer < 0.8) {
+            if (!player.userData.invincible && !player.userData.shield && 
+                currentDimension === 'alpha' && currentTime - lastHitTime > 1000) {
+                
+                energy -= 20;
                 lastHitTime = currentTime;
-                playerInvincible = true;
                 
                 // Break combo on hit
                 if (combo > 1) {
                     combo = 1;
-                    updateComboDisplay();
-                    playSound("comboBreak", 0.4);
+                    updateQuantumComboDisplay();
+                    playQuantumSound("comboBreak", 0.5);
                 }
                 
-                playSound("hit", 0.5);
-                addScreenShake(8);
+                playQuantumSound("hit", 0.6);
+                addQuantumShake(12);
                 
-                setTimeout(()=>{ playerInvincible = false; }, 1000);
-                updateUI();
+                // Quantum damage effect
+                const hitPos = worldToScreen(player.position);
+                if (hitPos) {
+                    createQuantumParticle(hitPos.x, hitPos.y, '#ff4444', 25, 10);
+                }
                 
-                // Push player away with more force
-                const pushDirection = player.position.clone().sub(customer.position).normalize();
-                const pushPos = player.position.clone().add(pushDirection.multiplyScalar(0.8));
+                // Push player away
+                const pushDirection = player.position.clone().sub(enemy.position).normalize();
+                const pushPos = player.position.clone().add(pushDirection.multiplyScalar(1.2));
                 if (!checkCollision(pushPos)) player.position.copy(pushPos);
                 
-                if (health <= 0) {
+                updateQuantumUI();
+                
+                if (energy <= 0) {
                     gameState = 'gameOver';
-                    document.getElementById('finalScore').textContent = score;
+                    document.getElementById('finalScore').textContent = score.toLocaleString();
                     document.getElementById('finalCombo').textContent = bestCombo;
+                    document.getElementById('finalLevel').textContent = level;
                     document.getElementById('gameOver').style.display = 'block';
-                    playSound("gameover", 0.6);
-                    saveLeaderboard(score);
+                    playQuantumSound("gameover", 0.8);
                 }
             }
         }
         
-        // Look at movement direction
-        if (customer.userData.direction.length() > 0) {
-            customer.lookAt(customer.position.clone().add(customer.userData.direction));
-        }
+        // Enhanced animations
+        enemy.lookAt(enemy.position.clone().add(targetDirection));
+        enemy.position.y = 1 + Math.sin(currentTime * 0.003 + enemyIndex) * 0.06;
         
-        // Enhanced bobbing animation
-        customer.position.y = 0.8 + Math.sin(currentTime*0.002+customerIndex)*0.04;
+        // Dynamic material effects
+        const intensity = enemyData.chasing ? 0.3 : 0.1;
+        enemy.children[0].material.emissiveIntensity = intensity;
+    });
+    
+    // Update quantum boss
+    if (bossActive && boss) {
+        updateQuantumBoss();
+    }
+}
+
+function updateSwarmIntelligence() {
+    // Group enemies by swarm ID
+    const swarms = {};
+    enemies.forEach((enemy, index) => {
+        const swarmId = enemy.userData.swarmId;
+        if (!swarms[swarmId]) swarms[swarmId] = [];
+        swarms[swarmId].push({enemy, index});
+    });
+    
+    // Apply swarm behaviors
+    Object.values(swarms).forEach(swarm => {
+        if (swarm.length > 1) {
+            // Activate swarm mode
+            swarm.forEach(({enemy}) => {
+                enemy.userData.aiState = 'swarm';
+                enemy.userData.formation = swarmIntelligence.formationPattern;
+            });
+        }
     });
 }
 
-function updateProjectiles() {
-    for (let i = projectiles.length-1; i>=0; i--) {
-        const projectile = projectiles[i];
-        const movement = projectile.userData.direction.clone().multiplyScalar(projectile.userData.speed);
-        projectile.position.add(movement);
+function executeSwarmBehavior(enemy, enemyIndex) {
+    const swarmId = enemy.userData.swarmId;
+    const swarmMembers = enemies.filter(e => e.userData.swarmId === swarmId);
+    
+    if (swarmMembers.length > 1) {
+        // Calculate swarm center
+        const swarmCenter = new THREE.Vector3();
+        swarmMembers.forEach(member => swarmCenter.add(member.position));
+        swarmCenter.divideScalar(swarmMembers.length);
         
-        // Check wall collision
-        if (checkCollision(projectile.position)) {
-            scene.remove(projectile);
-            projectiles.splice(i,1);
-            continue;
-        }
-        
-        // Check customer collision
-        let hit = false;
-        for (let j = customers.length-1; j>=0; j--) {
-            const customer = customers[j];
-            const distance = projectile.position.distanceTo(customer.position);
-            if (distance < 0.5) {
-                customer.userData.health--;
-                if (customer.userData.health <= 0) {
-                    // Particle effect on hit
-                    const screenPos = worldToScreen(customer.position);
-                    if (screenPos) {
-                        const color = customer.userData.type === 'bad' ? '#ff4444' : '#44ff44';
-                        createParticle(screenPos.x, screenPos.y, color, 10);
-                    }
-                    
-                    scene.remove(customer);
-                    customers.splice(j,1);
-                    
-                    const points = customer.userData.type==='bad' ? 100 : -50;
-                    score += points;
-                    
-                    playSound("hit", 0.3);
-                    addScreenShake(4);
-                    updateUI();
-                }
-                scene.remove(projectile);
-                projectiles.splice(i,1);
-                hit = true;
+        // Formation behavior
+        switch(enemy.userData.formation) {
+            case 'surround':
+                const angle = (enemyIndex * Math.PI * 2) / swarmMembers.length;
+                const radius = 3;
+                enemy.userData.targetPosition = new THREE.Vector3(
+                    player.position.x + Math.cos(angle) * radius,
+                    player.position.y,
+                    player.position.z + Math.sin(angle) * radius
+                );
                 break;
-            }
-        }
-        
-        if (hit) continue;
-        
-        // Remove projectile after lifetime
-        projectile.userData.life--;
-        if (projectile.userData.life <= 0) {
-            scene.remove(projectile);
-            projectiles.splice(i,1);
+                
+            case 'line':
+                enemy.userData.targetPosition = player.position.clone();
+                enemy.userData.targetPosition.x += (enemyIndex - swarmMembers.length/2) * 2;
+                break;
         }
     }
 }
 
-function updateMinimap() {
-    if (!minimapCtx || mobileMode) return;
+function updateQuantumBoss() {
+    const bossData = boss.userData;
+    const distanceToPlayer = boss.position.distanceTo(player.position);
     
-    const mapSize = minimapCanvas.width;
-    minimapCtx.fillStyle = '#0f0f23';
-    minimapCtx.fillRect(0,0,mapSize,mapSize);
+    // Boss movement
+    const direction = player.position.clone().sub(boss.position).normalize();
+    const moveVector = direction.multiplyScalar(bossData.speed);
+    const newPosition = boss.position.clone().add(moveVector);
     
-    const scale = mapSize/mazeSize;
-    
-    // Draw walls
-    minimapCtx.fillStyle = '#4a3728';
-    for (let z=0;z<mazeSize;z++) {
-        for (let x=0;x<mazeSize;x++) {
-            if (mazeLayout[z][x]===1) {
-                minimapCtx.fillRect(x*scale,z*scale,scale,scale);
-            }
-        }
+    if (!checkCollision(newPosition)) {
+        boss.position.copy(newPosition);
     }
     
-    // Draw clutter with glow
-    minimapCtx.shadowBlur = 5;
-    minimapCtx.shadowColor = '#ffaa00';
-    minimapCtx.fillStyle = '#ffaa00';
-    clutter.forEach(item=>{
-        const x=item.position.x*scale;
-        const z=item.position.z*scale;
-        minimapCtx.fillRect(x-2,z-2,4,4);
-    });
-    
-    // Draw powerups
-    minimapCtx.shadowColor = '#ff44ff';
-    minimapCtx.fillStyle = '#ff44ff';
-    powerups.forEach(item=>{
-        const x=item.position.x*scale;
-        const z=item.position.z*scale;
-        minimapCtx.fillRect(x-3,z-3,6,6);
-    });
-    
-    // Draw customers
-    minimapCtx.shadowBlur = 3;
-    customers.forEach(customer=>{
-        const color = customer.userData.type==='bad'?'#ff4444':'#44ff44';
-        minimapCtx.shadowColor = color;
-        minimapCtx.fillStyle = color;
-        const x=customer.position.x*scale;
-        const z=customer.position.z*scale;
-        minimapCtx.fillRect(x-2,z-2,4,4);
-    });
-    
-    // Draw player with enhanced glow
-    minimapCtx.shadowBlur = 8;
-    minimapCtx.shadowColor = '#00ffdd';
-    minimapCtx.fillStyle = '#00ffdd';
-    const px=player.position.x*scale;
-    const pz=player.position.z*scale;
-    minimapCtx.fillRect(px-4,pz-4,8,8);
-    
-    minimapCtx.shadowBlur = 0;
-}
-
-function updateUI() {
-    let levelName = level===1?'1 (Tutorial)':level===2?'2 (Novice)':level===3?'3 (Skilled)':level===4?'4 (Expert)':level+' (Master)';
-    document.getElementById('level').textContent = levelName;
-    document.getElementById('clutter').textContent = clutter.length;
-    document.getElementById('score').textContent = score.toLocaleString();
-    document.getElementById('streak').textContent = streak;
-    
-    let healthDisplay = '';
-    for (let i=0; i<Math.max(health,0); i++) healthDisplay+='💎';
-    for (let i=health; i<maxHealth; i++) healthDisplay+='🖤';
-    document.getElementById('health').textContent = healthDisplay;
-}
-
-function animate() {
-    requestAnimationFrame(animate);
-    
-    if (gameState === 'playing') {
-        updatePlayer();
-        updateCustomers();
-        updateProjectiles();
-        updateMinimap();
+    // Boss attacks
+    const currentTime = Date.now();
+    if (currentTime - bossData.attackCooldown > 3000) {
+        executeBossAttack();
+        bossData.attackCooldown = currentTime;
     }
     
-    // Update particles
-    updateParticles();
-    renderParticles();
-    
-    // Enhanced animations
-    const time = Date.now();
-    
-    // Animate clutter items with more dynamic movement
-    clutter.forEach((item,index)=>{
-        if (item.userData) {
-            item.rotation.y += item.userData.rotationSpeed;
-            item.rotation.x += item.userData.rotationSpeed * 0.3;
-            item.position.y = 0.35 + Math.sin(time*item.userData.bobSpeed+item.userData.bobOffset)*0.1;
-            
-            // Subtle pulsing
-            const pulse = 1 + Math.sin(time*0.005+index) * 0.1;
-            item.scale.set(pulse, pulse, pulse);
-        }
-    });
-    
-    // Animate powerups with attractive motion
-    powerups.forEach((item,index)=>{
-        item.rotation.y += 0.06;
-        item.rotation.z += 0.04;
-        item.position.y = 0.6 + Math.sin(time*0.003+index)*0.12;
-        
-        const pulse = 1 + Math.sin(time*0.008+index) * 0.2;
-        item.scale.set(pulse, pulse, pulse);
-    });
-    
-    // Player invincibility visual effect
-    if (playerInvincible) {
-        player.material.opacity = 0.4 + Math.sin(time*0.03)*0.4;
-    } else {
-        player.material.opacity = 0.95;
-    }
-    
-    // Apply screen shake
-    if (screenShake > 0) {
-        camera.position.x += (Math.random() - 0.5) * screenShake * 0.02;
-        camera.position.z += (Math.random() - 0.5) * screenShake * 0.02;
-        screenShake *= 0.85;
-        if (screenShake < 0.1) screenShake = 0;
-    }
-    
-    renderer.render(scene, camera);
-}
-
-function saveLeaderboard(newScore) {
-    try {
-        let scores = JSON.parse(window.localStorage?.getItem("diamondScores") || "[]");
-        scores.push({
-            score: newScore, 
-            combo: bestCombo,
-            level: level,
-            collected: totalCollected,
-            date: new Date().toLocaleDateString()
-        });
-        scores.sort((a,b) => b.score - a.score);
-        scores = scores.slice(0,15);
-        window.localStorage?.setItem("diamondScores", JSON.stringify(scores));
-        leaderboardScores = scores;
-    } catch(e) {
-        console.warn("Could not save to localStorage");
-    }
-}
-
-function loadLeaderboard() {
-    try {
-        leaderboardScores = JSON.parse(window.localStorage?.getItem("diamondScores") || "[]");
-    } catch(e) {
-        leaderboardScores = [];
-    }
-}
-
-function showLeaderboard() {
-    loadLeaderboard();
-    let listHTML = "<div style='text-align:left; margin:0; padding:10px;'>";
-    if (leaderboardScores.length === 0) {
-        listHTML += "<p>No scores yet! Be the first Diamond Master!</p>";
-    } else {
-        listHTML += "<ol style='margin:0; padding-left:20px;'>";
-        leaderboardScores.forEach((entry, index) => {
-            const score = entry.score || entry;
-            const combo = entry.combo || 1;
-            const level = entry.level || 1;
-            const date = entry.date || '';
-            const rank = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
-            listHTML += `<li style="margin:5px 0; padding:5px; background:rgba(0,255,136,0.1); border-radius:5px;">
-                ${rank} <strong>${score.toLocaleString()}</strong> pts 
-                <br><small>Level ${level} • Best Combo: ${combo}x • ${date}</small>
-            </li>`;
-        });
-        listHTML += "</ol>";
-    }
-    listHTML += "</div>";
-    document.getElementById("scoresList").innerHTML = listHTML;
-    document.getElementById("leaderboard").style.display = "block";
-}
-
-function hideLeaderboard() {
-    document.getElementById("leaderboard").style.display = "none";
-}
-
-// Initialize game immediately
-document.addEventListener('DOMContentLoaded', function() {
-    init();
-    startGame();
-});
-
-// Handle page visibility for mobile
-document.addEventListener('visibilitychange', function() {
-    if (document.hidden && gameState === 'playing') {
-        pauseGame();
-    }
-});
-</script>
-</body>
-</html>
+    // Boss animations
+    boss.rotation.
