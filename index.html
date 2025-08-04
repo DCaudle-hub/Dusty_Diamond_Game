@@ -34,9 +34,47 @@
         .btn:hover { background: #00ff00; color: #000;}
         #minimap { position: absolute; top: 20px; right: 20px; width: 200px; height: 200px; background: rgba(0,0,0,0.8); border: 2px solid #00ff00; border-radius: 10px; z-index: 100;}
         #muteBtn { position: absolute; top: 20px; right: 230px; color: #fff; z-index: 101; background: #222; border: 2px solid #00ff00; border-radius: 8px; padding: 5px 12px; font-size: 16px;}
+        /* Mobile controller styles */
+        #mobileControls {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            touch-action: manipulation;
+        }
+        .mobile-row {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+        }
+        .mobile-arrow {
+            width: 54px;
+            height: 54px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #00ff00;
+            border-radius: 50%;
+            color: #00ff00;
+            font-size: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .mobile-arrow:active {
+            background: #00ff00;
+            color: #000;
+        }
         @media (max-width:600px) {
             #minimap, #ui, #crosshair { display: none !important; }
             #instructions, #gameOver, #levelComplete, #pauseMenu, #leaderboard { font-size: 14px;}
+            #mobileControls { bottom: 12px; right: 12px; }
+            .mobile-arrow { width: 44px; height: 44px; font-size: 24px; }
         }
     </style>
 </head>
@@ -53,6 +91,16 @@
     </div>
     <button id="muteBtn" onclick="toggleMute()">🔊</button>
     <canvas id="minimap"></canvas>
+    <div id="mobileControls" style="display:none;">
+        <div class="mobile-row">
+            <button class="mobile-arrow" id="mobileUp">&#9650;</button>
+        </div>
+        <div class="mobile-row">
+            <button class="mobile-arrow" id="mobileLeft">&#9664;</button>
+            <button class="mobile-arrow" id="mobileDown">&#9660;</button>
+            <button class="mobile-arrow" id="mobileRight">&#9654;</button>
+        </div>
+    </div>
     <div id="instructions">
         <h2 style="margin: 0 0 10px 0; font-size: 24px;">💎 THE DUSTY DIAMOND 💎</h2>
         <h3 style="margin: 0 0 15px 0; font-size: 18px;">Store Processing Game</h3>
@@ -67,7 +115,7 @@
         <div style="margin: 10px 0; padding: 10px; background: rgba(255,255,0,0.1); border-radius: 8px;">
             <p style="margin: 5px 0; font-size: 14px; text-align: center;"><strong>🎮 CONTROLS:</strong></p>
             <p style="margin: 2px 0; text-align: center;">WASD = Move | Mouse = Look | Click = Spray | P = Pause | M = Mute</p>
-            <p style="margin: 2px 0; text-align: center;">(On mobile: Drag to move, Tap to shoot)</p>
+            <p style="margin: 2px 0; text-align: center;">On mobile: Use the green arrow buttons to move. Tap anywhere to shoot.</p>
         </div>
         <button class="btn" id="startBtn" style="margin-top: 20px; font-size: 20px; padding: 16px 32px;">START CLEANING!</button>
     </div>
@@ -126,6 +174,12 @@ let lastShot = 0, lastHitTime = 0;
 let mazeLayout = [];
 let minimapCanvas, minimapCtx;
 let leaderboardScores = [];
+let mobileMode = false;
+let mobileMove = {up:false,down:false,left:false,right:false};
+
+function isMobile() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
 
 function init() {
     scene = new THREE.Scene();
@@ -159,6 +213,38 @@ function init() {
     setupEventListeners();
     animate();
     loadLeaderboard();
+    // Show mobile controls if mobile
+    mobileMode = isMobile();
+    document.getElementById('mobileControls').style.display = mobileMode ? 'block' : 'none';
+    if (mobileMode) setupMobileControls();
+}
+
+function setupMobileControls() {
+    function setMove(dir, val) { mobileMove[dir] = val;}
+    // Touch events for arrows (hold = move, release = stop)
+    let arrows = [
+        {id:'mobileUp', dir:'up'},
+        {id:'mobileDown', dir:'down'},
+        {id:'mobileLeft', dir:'left'},
+        {id:'mobileRight', dir:'right'}
+    ];
+    arrows.forEach(a => {
+        let btn = document.getElementById(a.id);
+        btn.addEventListener('touchstart', function(e){e.preventDefault(); setMove(a.dir,true);});
+        btn.addEventListener('touchend', function(e){e.preventDefault(); setMove(a.dir,false);});
+        btn.addEventListener('mousedown', function(e){e.preventDefault(); setMove(a.dir,true);});
+        btn.addEventListener('mouseup', function(e){e.preventDefault(); setMove(a.dir,false);});
+        btn.addEventListener('mouseleave', function(e){e.preventDefault(); setMove(a.dir,false);});
+    });
+    // Tap anywhere else = shoot
+    renderer.domElement.addEventListener('touchend', function(e){
+        // Only shoot if not tapping on controller
+        if(!e.target.classList.contains('mobile-arrow')) shoot();
+    });
+    renderer.domElement.addEventListener('click', function(e){
+        // Only shoot if not clicking controller
+        if(!e.target.classList.contains('mobile-arrow')) shoot();
+    });
 }
 
 function createMaze() {
@@ -326,7 +412,7 @@ function setupEventListeners() {
         if (gameState === 'playing' && document.pointerLockElement === renderer.domElement) shoot();
     });
     renderer.domElement.addEventListener('click', () => {
-        if (gameState === 'playing' && document.pointerLockElement !== renderer.domElement) renderer.domElement.requestPointerLock();
+        if (!mobileMode && gameState === 'playing' && document.pointerLockElement !== renderer.domElement) renderer.domElement.requestPointerLock();
     });
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
@@ -355,7 +441,7 @@ function shoot() {
 function startGame() {
     gameState = 'playing'; level = 1; score = 0; health = maxHealth; cameraRotationY = 0; cameraRotationX = 0;
     createMaze(); player.position.set(2, 0.5, 2); camera.position.set(2, 2.5, 6); camera.lookAt(player.position);
-    setTimeout(() => { renderer.domElement.requestPointerLock(); }, 200);
+    setTimeout(() => { if(!mobileMode) renderer.domElement.requestPointerLock(); }, 200);
 }
 function restartGame() {
     document.getElementById('gameOver').style.display = 'none';
@@ -408,10 +494,21 @@ function checkCollision(newPos) {
 function updatePlayer() {
     if (gameState !== 'playing') return;
     const moveVector = new THREE.Vector3();
+
+    // Keyboard movement
     if (keys['KeyW'] || keys['ArrowUp']) { moveVector.x -= Math.sin(cameraRotationY) * playerSpeed; moveVector.z -= Math.cos(cameraRotationY) * playerSpeed;}
     if (keys['KeyS'] || keys['ArrowDown']) { moveVector.x += Math.sin(cameraRotationY) * playerSpeed; moveVector.z += Math.cos(cameraRotationY) * playerSpeed;}
     if (keys['KeyA'] || keys['ArrowLeft']) { moveVector.x -= Math.cos(cameraRotationY) * playerSpeed; moveVector.z += Math.sin(cameraRotationY) * playerSpeed;}
     if (keys['KeyD'] || keys['ArrowRight']) { moveVector.x += Math.cos(cameraRotationY) * playerSpeed; moveVector.z -= Math.sin(cameraRotationY) * playerSpeed;}
+
+    // Mobile movement
+    if (mobileMode) {
+        if (mobileMove.up)    { moveVector.x -= Math.sin(cameraRotationY) * playerSpeed; moveVector.z -= Math.cos(cameraRotationY) * playerSpeed;}
+        if (mobileMove.down)  { moveVector.x += Math.sin(cameraRotationY) * playerSpeed; moveVector.z += Math.cos(cameraRotationY) * playerSpeed;}
+        if (mobileMove.left)  { moveVector.x -= Math.cos(cameraRotationY) * playerSpeed; moveVector.z += Math.sin(cameraRotationY) * playerSpeed;}
+        if (mobileMove.right) { moveVector.x += Math.cos(cameraRotationY) * playerSpeed; moveVector.z -= Math.sin(cameraRotationY) * playerSpeed;}
+    }
+
     if (moveVector.length() > 0) {
         const newPosition = player.position.clone().add(moveVector);
         if (!checkCollision(newPosition)) {
