@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>The Dusty Diamond: Store Processing Game</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
-    <!-- Thumbnail for link sharing (diamond icon) -->
     <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Crystal_Clear_action_diamond.png/240px-Crystal_Clear_action_diamond.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Crystal_Clear_action_diamond.png/240px-Crystal_Clear_action_diamond.png">
@@ -21,7 +20,7 @@
         body { 
             margin: 0; 
             padding: 0; 
-            background: #000; 
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
             font-family: 'Courier New', monospace; 
             overflow: hidden; 
             cursor: none;
@@ -38,28 +37,45 @@
         }
         #ui {
             position: absolute; 
-            top: 10px; 
-            left: 10px;
-            color: #00ff00; 
-            font-size: 16px; 
+            top: 15px; 
+            left: 15px;
+            color: #00ff88; 
+            font-size: 18px; 
             font-weight: bold; 
             z-index: 100;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-            background: rgba(0,0,0,0.8); 
-            padding: 12px; 
-            border-radius: 8px;
-            border: 1px solid #00ff00;
+            text-shadow: 0 0 10px rgba(0,255,136,0.8);
+            background: rgba(0,0,0,0.85); 
+            padding: 16px; 
+            border-radius: 12px;
+            border: 2px solid #00ff88;
+            box-shadow: 0 0 20px rgba(0,255,136,0.3);
+        }
+        #comboDisplay {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: #ffaa00;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 100;
+            text-shadow: 0 0 15px rgba(255,170,0,0.9);
+            background: rgba(0,0,0,0.85);
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 2px solid #ffaa00;
+            box-shadow: 0 0 25px rgba(255,170,0,0.4);
+            display: none;
         }
         #crosshair { 
             position: absolute; 
             top: 50%; 
             left: 50%; 
             transform: translate(-50%, -50%); 
-            width: 24px; 
-            height: 24px; 
+            width: 30px; 
+            height: 30px; 
             z-index: 150; 
             pointer-events: none;
-            opacity: 0.8;
+            opacity: 0.9;
         }
         #crosshair::before { 
             content: ''; 
@@ -67,21 +83,21 @@
             top: 50%; 
             left: 0; 
             width: 100%; 
-            height: 2px; 
-            background: #00ff00; 
+            height: 3px; 
+            background: linear-gradient(90deg, transparent, #00ff88, transparent);
             transform: translateY(-50%);
-            box-shadow: 0 0 6px #00ff00;
+            box-shadow: 0 0 10px #00ff88;
         }
         #crosshair::after { 
             content: ''; 
             position: absolute; 
             left: 50%; 
             top: 0; 
-            width: 2px; 
+            width: 3px; 
             height: 100%; 
-            background: #00ff00; 
+            background: linear-gradient(180deg, transparent, #00ff88, transparent);
             transform: translateX(-50%);
-            box-shadow: 0 0 6px #00ff00;
+            box-shadow: 0 0 10px #00ff88;
         }
         #instructions, #gameOver, #levelComplete, #pauseMenu, #leaderboard {
             position: absolute; 
@@ -89,181 +105,217 @@
             left: 50%; 
             transform: translate(-50%, -50%);
             text-align: center; 
-            font-size: 16px; 
+            font-size: 18px; 
             background: rgba(0,0,0,0.95); 
-            padding: 20px; 
-            border-radius: 12px; 
+            padding: 25px; 
+            border-radius: 15px; 
             z-index: 200; 
             max-height: 90vh; 
             overflow-y: auto; 
             max-width: 90vw;
-            box-shadow: 0 0 20px rgba(0,255,0,0.3);
+            box-shadow: 0 0 30px rgba(0,255,136,0.5);
         }
-        #instructions { border: 2px solid #00ff00; color: #00ff00; display: none; }
-        #gameOver { border: 3px solid #ff0000; color: #ff0000; display: none;}
-        #levelComplete { border: 3px solid #00ff00; color: #00ff00; display: none;}
-        #pauseMenu { border: 2px solid #ffff00; color: #ffff00; display: none; }
-        #leaderboard { border: 2px solid #00ff00; color: #00ff00; display: none; }
+        #instructions { border: 3px solid #00ff88; color: #00ff88; display: none; }
+        #gameOver { border: 3px solid #ff4444; color: #ff4444; display: none;}
+        #levelComplete { border: 3px solid #00ff88; color: #00ff88; display: none;}
+        #pauseMenu { border: 3px solid #ffaa00; color: #ffaa00; display: none; }
+        #leaderboard { border: 3px solid #00ff88; color: #00ff88; display: none; }
         
         .btn { 
-            background: #333; 
-            color: #00ff00; 
-            border: 2px solid #00ff00; 
-            padding: 12px 24px; 
-            margin: 8px; 
+            background: linear-gradient(145deg, #333, #444); 
+            color: #00ff88; 
+            border: 3px solid #00ff88; 
+            padding: 14px 28px; 
+            margin: 10px; 
             cursor: pointer; 
             font-family: 'Courier New', monospace; 
-            font-size: 16px; 
-            border-radius: 8px;
-            transition: all 0.2s;
-            box-shadow: 0 0 10px rgba(0,255,0,0.2);
+            font-size: 18px; 
+            border-radius: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(0,255,136,0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .btn:hover, .btn:active { 
-            background: #00ff00; 
+            background: linear-gradient(145deg, #00ff88, #00cc66);
             color: #000;
-            box-shadow: 0 0 15px rgba(0,255,0,0.5);
+            box-shadow: 0 0 25px rgba(0,255,136,0.7);
+            transform: translateY(-2px);
         }
         
         #minimap { 
             position: absolute; 
-            top: 10px; 
-            right: 10px; 
-            width: 160px; 
-            height: 160px; 
+            top: 15px; 
+            right: 15px; 
+            width: 180px; 
+            height: 180px; 
             background: rgba(0,0,0,0.9); 
-            border: 2px solid #00ff00; 
-            border-radius: 8px; 
-            z-index: 100;
-            box-shadow: 0 0 10px rgba(0,255,0,0.3);
+            border: 3px solid #00ff88; 
+            border-radius: 12px; 
+            z-index: 99;
+            box-shadow: 0 0 15px rgba(0,255,136,0.4);
         }
         
         #mobileControls {
             position: absolute;
-            bottom: 20px;
-            right: 20px;
+            bottom: 25px;
+            right: 25px;
             z-index: 1000;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
             touch-action: manipulation;
         }
         .mobile-row {
             display: flex;
             flex-direction: row;
-            gap: 12px;
+            gap: 15px;
         }
         .mobile-arrow {
-            width: 60px;
-            height: 60px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 3px solid #00ff00;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(145deg, rgba(0,0,0,0.9), rgba(20,20,20,0.9));
+            border: 3px solid #00ff88;
             border-radius: 50%;
-            color: #00ff00;
-            font-size: 28px;
+            color: #00ff88;
+            font-size: 32px;
             display: flex;
             justify-content: center;
             align-items: center;
             user-select: none;
             cursor: pointer;
-            transition: all 0.15s;
-            box-shadow: 0 0 15px rgba(0,255,0,0.3);
+            transition: all 0.2s;
+            box-shadow: 0 0 20px rgba(0,255,136,0.4);
             font-weight: bold;
         }
         .mobile-arrow:active {
-            background: #00ff00;
+            background: linear-gradient(145deg, #00ff88, #00cc66);
             color: #000;
             transform: scale(0.95);
-            box-shadow: 0 0 20px rgba(0,255,0,0.6);
+            box-shadow: 0 0 30px rgba(0,255,136,0.8);
         }
         
         #shootButton {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 0, 0, 0.8);
-            border: 3px solid #ff0000;
+            bottom: 25px;
+            left: 25px;
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(145deg, rgba(255,0,0,0.9), rgba(200,0,0,0.9));
+            border: 3px solid #ff4444;
             border-radius: 50%;
-            color: #ff0000;
-            font-size: 20px;
+            color: #fff;
+            font-size: 24px;
             display: flex;
             justify-content: center;
             align-items: center;
             user-select: none;
             cursor: pointer;
-            transition: all 0.15s;
-            box-shadow: 0 0 15px rgba(255,0,0,0.3);
+            transition: all 0.2s;
+            box-shadow: 0 0 20px rgba(255,68,68,0.5);
             font-weight: bold;
             z-index: 1000;
         }
         #shootButton:active {
-            background: #ff0000;
-            color: #000;
+            background: linear-gradient(145deg, #ff4444, #cc0000);
             transform: scale(0.9);
-            box-shadow: 0 0 25px rgba(255,0,0,0.7);
+            box-shadow: 0 0 35px rgba(255,68,68,0.9);
+        }
+        
+        #particleCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+        
+        .screen-shake {
+            animation: shake 0.1s ease-in-out;
         }
         
         @media (max-width: 768px) {
             #ui { 
-                font-size: 14px; 
-                padding: 8px; 
-                top: 5px; 
-                left: 5px; 
+                font-size: 16px; 
+                padding: 12px; 
+                top: 10px; 
+                left: 10px; 
+            }
+            #comboDisplay {
+                font-size: 20px;
+                top: 10px;
+                right: 10px;
+                padding: 8px 16px;
             }
             #minimap { 
-                width: 120px; 
-                height: 120px; 
-                top: 5px; 
-                right: 5px; 
+                width: 140px; 
+                height: 140px; 
+                top: 10px; 
+                right: 10px;
+                display: none; /* Hide on mobile for better visibility */
             }
             #crosshair { 
-                width: 20px; 
-                height: 20px; 
+                width: 25px; 
+                height: 25px; 
             }
             #instructions, #gameOver, #levelComplete, #pauseMenu, #leaderboard { 
-                font-size: 14px;
-                padding: 15px;
+                font-size: 16px;
+                padding: 20px;
             }
             #mobileControls { 
-                bottom: 15px; 
-                right: 15px; 
-                gap: 8px;
+                bottom: 20px; 
+                right: 20px; 
+                gap: 12px;
             }
             .mobile-arrow { 
-                width: 50px; 
-                height: 50px; 
-                font-size: 24px; 
+                width: 60px; 
+                height: 60px; 
+                font-size: 28px; 
             }
             #shootButton {
-                bottom: 15px;
-                left: 15px;
-                width: 70px;
-                height: 70px;
-                font-size: 18px;
+                bottom: 20px;
+                left: 20px;
+                width: 80px;
+                height: 80px;
+                font-size: 22px;
             }
         }
         
         @media (max-width: 480px) {
-            #ui { font-size: 12px; }
-            #minimap { width: 100px; height: 100px; }
-            .mobile-arrow { width: 45px; height: 45px; font-size: 20px; }
-            #shootButton { width: 60px; height: 60px; font-size: 16px; }
+            #ui { font-size: 14px; }
+            #comboDisplay { font-size: 18px; }
+            .mobile-arrow { width: 55px; height: 55px; font-size: 24px; }
+            #shootButton { width: 70px; height: 70px; font-size: 20px; }
         }
     </style>
 </head>
 <body>
 <div id="gameContainer">
+    <canvas id="particleCanvas"></canvas>
     <div id="crosshair"></div>
     <div id="ui">
         <div>Level: <span id="level">1</span></div>
         <div>Clutter: <span id="clutter">0</span></div>
         <div>Score: <span id="score">0</span></div>
         <div>Health: <span id="health">❤️❤️❤️</span></div>
-        <div>Ammo: <span id="ammo">∞</span></div>
-        <div style="font-size:12px;margin-top:6px;">[WASD] Move | [Click] Shoot | [P] Pause | M = Mute</div>
+        <div>Streak: <span id="streak">0</span></div>
+        <div style="font-size:14px;margin-top:8px;opacity:0.8;">[WASD] Move | [Click] Shoot | [P] Pause | M = Mute</div>
     </div>
+    
+    <div id="comboDisplay">
+        <div id="comboText">COMBO x<span id="comboMultiplier">1</span></div>
+        <div id="comboTimer" style="font-size:12px; margin-top:4px;">●●●●●</div>
+    </div>
+    
     <canvas id="minimap"></canvas>
     
     <div id="mobileControls">
@@ -280,85 +332,130 @@
     <button id="shootButton">💥</button>
     
     <div id="instructions">
-        <h2 style="margin: 0 0 10px 0; font-size: 24px;">💎 THE DUSTY DIAMOND 💎</h2>
-        <h3 style="margin: 0 0 15px 0; font-size: 18px;">Store Processing Game</h3>
-        <div style="margin: 10px 0; padding: 15px; background: rgba(0,255,0,0.1); border-radius: 8px; text-align: left;">
-            <p style="margin: 5px 0; font-size: 16px; text-align: center;"><strong>🎯 YOUR MISSION:</strong></p>
-            <p style="margin: 3px 0;">• You're a sparkling diamond tasked with cleaning the thrift store</p>
-            <p style="margin: 3px 0;">• Collect all the yellow clutter items to complete each level</p>
-            <p style="margin: 3px 0;">• Watch out for thieves, Karens, and Darrens - they'll hurt you!</p>
-            <p style="margin: 3px 0;">• Green customers are friendly - they won't harm you</p>
-            <p style="margin: 3px 0;">• Collect power-ups for health and upgrades!</p>
+        <h2 style="margin: 0 0 15px 0; font-size: 28px;">💎 THE DUSTY DIAMOND 💎</h2>
+        <h3 style="margin: 0 0 20px 0; font-size: 20px;">Store Processing Mastery</h3>
+        <div style="margin: 15px 0; padding: 20px; background: rgba(0,255,136,0.15); border-radius: 10px; text-align: left;">
+            <p style="margin: 8px 0; font-size: 18px; text-align: center;"><strong>🎯 YOUR MISSION:</strong></p>
+            <p style="margin: 5px 0;">• You're a sparkling diamond cleaning the thrift store</p>
+            <p style="margin: 5px 0;">• Collect all yellow clutter to advance levels</p>
+            <p style="margin: 5px 0;">• Build COMBOS by collecting items quickly!</p>
+            <p style="margin: 5px 0;">• Avoid red customers - they steal your energy</p>
+            <p style="margin: 5px 0;">• Green customers are friendly helpers</p>
+            <p style="margin: 5px 0;">• Grab power-ups for health and special abilities!</p>
         </div>
-        <div style="margin: 10px 0; padding: 10px; background: rgba(255,255,0,0.1); border-radius: 8px;">
-            <p style="margin: 5px 0; font-size: 14px; text-align: center;"><strong>🎮 CONTROLS:</strong></p>
-            <p style="margin: 2px 0; text-align: center;">WASD = Move | Mouse = Look | Click = Spray | P = Pause | M = Mute</p>
-            <p style="margin: 2px 0; text-align: center;">On mobile: Use arrow buttons to move. Red button to shoot.</p>
+        <div style="margin: 15px 0; padding: 15px; background: rgba(255,170,0,0.15); border-radius: 10px;">
+            <p style="margin: 8px 0; font-size: 16px; text-align: center;"><strong>🎮 CONTROLS:</strong></p>
+            <p style="margin: 4px 0; text-align: center;">WASD = Move | Mouse = Look | Click = Spray | P = Pause | M = Mute</p>
+            <p style="margin: 4px 0; text-align: center;">Mobile: Arrow buttons move, red button shoots</p>
         </div>
     </div>
     
     <div id="gameOver">
         <h2>STORE CLOSED!</h2>
-        <p>The customers caught you!</p>
+        <p>The chaos got the better of you!</p>
         <p>Final Score: <span id="finalScore">0</span></p>
-        <button class="btn" onclick="restartGame()">TRY AGAIN</button>
-        <button class="btn" onclick="showLeaderboard()">LEADERBOARD</button>
+        <p>Best Combo: <span id="finalCombo">0</span>x</p>
+        <button class="btn" onclick="restartGame()">Retry Mission</button>
+        <button class="btn" onclick="showLeaderboard()">Hall of Fame</button>
     </div>
     
     <div id="levelComplete">
         <h2>LEVEL PROCESSED!</h2>
-        <p>Great job! Moving to next level...</p>
+        <p>Excellent work, Diamond!</p>
         <p>Score: <span id="levelScore">0</span></p>
-        <button class="btn" onclick="nextLevel()">NEXT LEVEL</button>
+        <p>Level Bonus: <span id="levelBonus">0</span></p>
+        <button class="btn" onclick="nextLevel()">Next Challenge</button>
     </div>
     
     <div id="pauseMenu">
-        <h2>PAUSED</h2>
-        <p>Press [P] to resume</p>
-        <button class="btn" onclick="resumeGame()">Resume</button>
+        <h2>MISSION PAUSED</h2>
+        <p>Take a breather, Diamond</p>
+        <button class="btn" onclick="resumeGame()">Continue</button>
+        <button class="btn" onclick="showLeaderboard()">Hall of Fame</button>
     </div>
     
     <div id="leaderboard">
-        <h2>Top Scores</h2>
+        <h2>🏆 HALL OF FAME 🏆</h2>
         <div id="scoresList"></div>
-        <button class="btn" onclick="hideLeaderboard()">Close</button>
+        <button class="btn" onclick="hideLeaderboard()">Back</button>
     </div>
 </div>
 
 <script>
-// --- Sound Effects ---
+// Enhanced sound system with better feedback
 const sounds = {
-    collect: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTQIGWm98OScTgwOUarm7bgmCBSJ1fLNeSsFLIHO8tiIMAkZaLvt559NEAxRp+PwtmwOOJHH8KFXAAAAAA=='),
-    hit: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTQIGWm98OScTgwOUarm7bgmCBSJ1fLNeSsFLIHO8tiIMAkZaLvt559NEAxRp+PwtmwOOJHH8KFXAAAAAA=='),
-    shoot: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTQIGWm98OScTgwOUarm7bgmCBSJ1fLNeSsFLIHO8tiIMAkZaLvt559NEAxRp+PwtmwOOJHH8KFXAAAAAA=='),
-    levelup: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTQIGWm98OScTgwOUarm7bgmCBSJ1fLNeSsFLIHO8tiIMAkZaLvt559NEAxRp+PwtmwOOJHH8KFXAAAAAA=='),
-    gameover: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTQIGWm98OScTgwOUarm7bgmCBSJ1fLNeSsFLIHO8tiIMAkZaLvt559NEAxRp+PwtmwOOJHH8KFXAAAAAA=='),
-    powerup: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTQIGWm98OScTgwOUarm7bgmCBSJ1fLNeSsFLIHO8tiIMAkZaLvt559NEAxRp+PwtmwOOJHH8KFXAAAAAA=='),
+    collect: { freq: 800, duration: 0.1, type: 'square' },
+    comboCollect: { freq: 1200, duration: 0.15, type: 'sine' },
+    hit: { freq: 150, duration: 0.3, type: 'sawtooth' },
+    shoot: { freq: 400, duration: 0.05, type: 'noise' },
+    levelup: { freq: 600, duration: 0.5, type: 'sine' },
+    gameover: { freq: 100, duration: 1.0, type: 'sawtooth' },
+    powerup: { freq: 1000, duration: 0.3, type: 'sine' },
+    comboBreak: { freq: 200, duration: 0.2, type: 'sawtooth' }
 };
 
+let audioContext;
 let mute = false;
-function toggleMute() {
-    mute = !mute;
-    for (let s in sounds) sounds[s].muted = mute;
-}
-function playSound(name) { 
-    if (sounds[name] && !mute) { 
-        try { 
-            sounds[name].currentTime = 0; 
-            sounds[name].volume = 0.3;
-            sounds[name].play().catch(() => {}); 
-        } catch(e){} 
-    } 
+
+function initAudio() {
+    try {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e) {
+        console.warn("Audio not supported");
+    }
 }
 
-// --- Game Variables ---
+function playSound(name, volume = 0.3) {
+    if (mute || !audioContext || !sounds[name]) return;
+    
+    try {
+        const sound = sounds[name];
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        if (sound.type === 'noise') {
+            // Create noise for shooting sound
+            const bufferSize = audioContext.sampleRate * sound.duration;
+            const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const output = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = Math.random() * 2 - 1;
+            }
+            const noise = audioContext.createBufferSource();
+            noise.buffer = buffer;
+            noise.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + sound.duration);
+            noise.start(audioContext.currentTime);
+            noise.stop(audioContext.currentTime + sound.duration);
+        } else {
+            oscillator.type = sound.type;
+            oscillator.frequency.setValueAtTime(sound.freq, audioContext.currentTime);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + sound.duration);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + sound.duration);
+        }
+    } catch(e) {
+        console.warn("Audio playback failed");
+    }
+}
+
+function toggleMute() {
+    mute = !mute;
+}
+
+// Enhanced game variables with progression systems
 let scene, camera, renderer, player, maze, customers = [], clutter = [], projectiles = [];
-let powerups = [];
+let powerups = [], particles = [];
 let gameState = 'playing';
 let level = 1, score = 0, health = 3, maxHealth = 3, playerInvincible = false;
 let keys = {}, mouseX = 0, mouseY = 0;
-let playerSpeed = 0.12, customerSpeed = 0.018;
-let mazeSize = 21;
+let playerSpeed = 0.055, customerSpeed = 0.008; // Much slower, more precise movement
+let mazeSize = 25; // Larger maze for more open feel
 let cameraRotationY = 0, cameraRotationX = 0;
 let lastShot = 0, lastHitTime = 0;
 let mazeLayout = [];
@@ -367,17 +464,83 @@ let leaderboardScores = [];
 let mobileMode = false;
 let mobileMove = {up:false,down:false,left:false,right:false};
 
+// Combo and progression system
+let streak = 0, combo = 1, lastCollectTime = 0, comboTimer = 5000;
+let bestCombo = 1, totalCollected = 0;
+let particleCanvas, particleCtx;
+let screenShake = 0;
+
+// Particle system
+let gameParticles = [];
+
+function createParticle(x, y, color = '#ffaa00', count = 8) {
+    for (let i = 0; i < count; i++) {
+        gameParticles.push({
+            x: x,
+            y: y,
+            vx: (Math.random() - 0.5) * 8,
+            vy: (Math.random() - 0.5) * 8,
+            life: 1.0,
+            decay: 0.02 + Math.random() * 0.02,
+            color: color,
+            size: 3 + Math.random() * 4
+        });
+    }
+}
+
+function updateParticles() {
+    for (let i = gameParticles.length - 1; i >= 0; i--) {
+        const p = gameParticles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vx *= 0.98;
+        p.vy *= 0.98;
+        p.life -= p.decay;
+        p.size *= 0.99;
+        
+        if (p.life <= 0) {
+            gameParticles.splice(i, 1);
+        }
+    }
+}
+
+function renderParticles() {
+    if (!particleCtx) return;
+    
+    particleCtx.clearRect(0, 0, particleCanvas.width, particleCanvas.height);
+    
+    gameParticles.forEach(p => {
+        particleCtx.save();
+        particleCtx.globalAlpha = p.life;
+        particleCtx.fillStyle = p.color;
+        particleCtx.beginPath();
+        particleCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        particleCtx.fill();
+        particleCtx.restore();
+    });
+}
+
+function addScreenShake(intensity = 5) {
+    screenShake = intensity;
+    document.getElementById('gameContainer').classList.add('screen-shake');
+    setTimeout(() => {
+        document.getElementById('gameContainer').classList.remove('screen-shake');
+    }, 100);
+}
+
 function isMobile() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 }
 
 function init() {
+    initAudio();
+    
     scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x222222, 8, 35);
+    scene.fog = new THREE.Fog(0x1a1a2e, 12, 45);
 
-    // Elevated camera for perfect view above walls
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-    camera.position.set(2, 5.5, 2); // Lower and closer for better detail view
+    // Perfect camera angle for elevated view
+    camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(2, 6.5, 2); // Slightly higher for better overview
     camera.lookAt(2, 0, 2);
 
     renderer = new THREE.WebGLRenderer({ 
@@ -386,38 +549,48 @@ function init() {
         powerPreference: "high-performance"
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x1a1a2e);
+    renderer.setClearColor(0x0f0f23);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     document.getElementById('gameContainer').appendChild(renderer.domElement);
 
+    // Particle canvas setup
+    particleCanvas = document.getElementById('particleCanvas');
+    particleCtx = particleCanvas.getContext('2d');
+    particleCanvas.width = window.innerWidth;
+    particleCanvas.height = window.innerHeight;
+
     minimapCanvas = document.getElementById('minimap');
     minimapCtx = minimapCanvas.getContext('2d');
-    const mapSize = window.innerWidth <= 480 ? 100 : window.innerWidth <= 768 ? 120 : 160;
+    const mapSize = window.innerWidth <= 480 ? 100 : window.innerWidth <= 768 ? 140 : 180;
     minimapCanvas.width = mapSize;
     minimapCanvas.height = mapSize;
 
-    // Enhanced lighting for better visibility
-    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    // Enhanced lighting system
+    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
     
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(10, 20, 5);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
+    directionalLight.position.set(15, 25, 10);
     directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 1024;
-    directionalLight.shadow.mapSize.height = 1024;
+    directionalLight.shadow.mapSize.width = 2048;
+    directionalLight.shadow.mapSize.height = 2048;
     directionalLight.shadow.camera.near = 0.5;
-    directionalLight.shadow.camera.far = 50;
+    directionalLight.shadow.camera.far = 60;
     scene.add(directionalLight);
     
-    // Multiple point lights for better illumination
-    const pointLight1 = new THREE.PointLight(0x00ffff, 0.4, 15);
-    pointLight1.position.set(5, 4, 5);
+    // Dynamic colored lighting
+    const pointLight1 = new THREE.PointLight(0x00ffaa, 0.5, 20);
+    pointLight1.position.set(8, 6, 8);
     scene.add(pointLight1);
     
-    const pointLight2 = new THREE.PointLight(0xff00ff, 0.3, 12);
-    pointLight2.position.set(15, 4, 15);
+    const pointLight2 = new THREE.PointLight(0xaa00ff, 0.4, 18);
+    pointLight2.position.set(18, 6, 18);
     scene.add(pointLight2);
+    
+    const pointLight3 = new THREE.PointLight(0xffaa00, 0.3, 15);
+    pointLight3.position.set(12, 6, 12);
+    scene.add(pointLight3);
 
     createPlayer();
     createMaze();
@@ -428,12 +601,11 @@ function init() {
     mobileMode = isMobile();
     setupMobileControls();
     
-    // Start game immediately for better UX
     gameState = 'playing';
+    updateComboDisplay();
 }
 
 function setupMobileControls() {
-    // Always show mobile controls, hide on desktop with CSS if needed
     const controls = document.getElementById('mobileControls');
     const shootBtn = document.getElementById('shootButton');
     
@@ -447,15 +619,14 @@ function setupMobileControls() {
 
     function setMove(dir, val) { 
         mobileMove[dir] = val;
-        // Visual feedback
         const btn = document.getElementById('mobile' + dir.charAt(0).toUpperCase() + dir.slice(1));
         if (btn) {
             if (val) {
-                btn.style.background = '#00ff00';
+                btn.style.background = 'linear-gradient(145deg, #00ff88, #00cc66)';
                 btn.style.color = '#000';
             } else {
-                btn.style.background = 'rgba(0, 0, 0, 0.8)';
-                btn.style.color = '#00ff00';
+                btn.style.background = 'linear-gradient(145deg, rgba(0,0,0,0.9), rgba(20,20,20,0.9))';
+                btn.style.color = '#00ff88';
             }
         }
     }
@@ -470,7 +641,6 @@ function setupMobileControls() {
     arrows.forEach(a => {
         let btn = document.getElementById(a.id);
         if (btn) {
-            // Touch events
             btn.addEventListener('touchstart', function(e){
                 e.preventDefault(); 
                 setMove(a.dir,true);
@@ -481,7 +651,6 @@ function setupMobileControls() {
                 setMove(a.dir,false);
             }, {passive: false});
             
-            // Mouse events for testing
             btn.addEventListener('mousedown', function(e){
                 e.preventDefault(); 
                 setMove(a.dir,true);
@@ -499,7 +668,6 @@ function setupMobileControls() {
         }
     });
 
-    // Shoot button
     if (shootBtn) {
         shootBtn.addEventListener('touchstart', function(e){
             e.preventDefault();
@@ -513,30 +681,18 @@ function setupMobileControls() {
         });
     }
 
-    // Prevent zoom and other mobile browser behaviors
+    // Prevent mobile browser behaviors
     document.addEventListener('touchstart', function(e) {
-        if (e.touches.length > 1) {
-            e.preventDefault();
-        }
+        if (e.touches.length > 1) e.preventDefault();
     }, {passive: false});
 
     document.addEventListener('touchend', function(e) {
-        if (e.touches.length > 1) {
-            e.preventDefault();
-        }
+        if (e.touches.length > 1) e.preventDefault();
     }, {passive: false});
 
-    document.addEventListener('gesturestart', function(e) {
-        e.preventDefault();
-    });
-
-    document.addEventListener('gesturechange', function(e) {
-        e.preventDefault();
-    });
-
-    document.addEventListener('gestureend', function(e) {
-        e.preventDefault();
-    });
+    document.addEventListener('gesturestart', function(e) { e.preventDefault(); });
+    document.addEventListener('gesturechange', function(e) { e.preventDefault(); });
+    document.addEventListener('gestureend', function(e) { e.preventDefault(); });
 }
 
 function createMaze() {
@@ -550,43 +706,48 @@ function createMaze() {
     
     maze = new THREE.Group();
 
-    // Enhanced maze layout
+    // MORE OPEN MAZE DESIGN - Wider corridors for better flow
     mazeLayout = [
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
-        [1,0,1,1,0,0,1,0,1,1,1,1,1,0,1,0,0,1,1,0,1],
-        [1,0,0,1,1,1,1,0,0,1,1,1,0,0,1,1,1,0,0,0,1],
-        [1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,1],
-        [1,0,0,1,0,1,1,1,0,1,0,1,1,1,0,0,1,0,1,0,1],
-        [1,0,0,0,0,0,1,1,1,1,0,0,1,1,1,0,0,0,0,0,1],
-        [1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
-        [1,0,0,0,1,0,0,1,1,0,0,0,1,1,0,0,1,0,0,0,1],
-        [1,1,1,0,0,0,1,1,0,0,0,0,0,1,1,0,0,0,1,1,1],
-        [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
-        [1,0,1,1,0,0,1,0,1,1,0,1,1,0,1,0,0,1,1,0,1],
-        [1,0,0,1,1,1,1,0,0,1,1,1,0,0,1,1,1,1,0,0,1],
-        [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,1,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,1,0,1],
-        [1,0,0,1,1,1,0,1,0,1,0,1,0,0,0,1,1,1,0,0,1],
-        [1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1],
-        [1,0,0,1,0,1,1,0,0,0,0,0,0,0,1,1,0,1,0,0,1],
-        [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,1,1,1,0,1,0,0,1,1,1,0,0,1,0,1,1,1,0,0,0,0,1],
+        [1,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,1],
+        [1,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,1],
+        [1,0,0,0,0,0,1,1,1,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,0,0,0,1,1,0,0,0,0,0,0,0,0,1,1,0,0,0,1,1,1,1],
+        [1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1],
+        [1,0,0,1,1,1,1,0,0,1,1,1,1,1,0,0,1,1,1,1,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,1,1,1,0,0,0,1,0,0,0,0,0,1,1,1,0,0,1,1,1,0,1],
+        [1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1],
+        [1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1],
+        [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
-    // Create walls with enhanced textures
+    // Create walls with enhanced visuals
     for (let z = 0; z < mazeSize; z++) {
         for (let x = 0; x < mazeSize; x++) {
             if (mazeLayout[z][x] === 1) {
-                const wallGeometry = new THREE.BoxGeometry(1, 2.5, 1);
+                const wallGeometry = new THREE.BoxGeometry(1, 2.2, 1);
                 const wallMaterial = new THREE.MeshPhongMaterial({ 
-                    color: 0x654321, 
+                    color: 0x4a3728, 
                     map: createShelfTexture(),
-                    shininess: 30
+                    shininess: 20,
+                    specular: 0x222222
                 });
                 const wall = new THREE.Mesh(wallGeometry, wallMaterial);
-                wall.position.set(x, 1.25, z);
+                wall.position.set(x, 1.1, z);
                 wall.castShadow = true;
                 wall.receiveShadow = true;
                 maze.add(wall);
@@ -594,12 +755,13 @@ function createMaze() {
         }
     }
 
-    // Enhanced floor
+    // Enhanced floor with pattern
     const floorGeometry = new THREE.PlaneGeometry(mazeSize, mazeSize);
     const floorMaterial = new THREE.MeshPhongMaterial({ 
-        color: 0xf0f0f0,
+        color: 0xe8e8e8,
         side: THREE.DoubleSide,
-        shininess: 10
+        shininess: 5,
+        map: createFloorTexture()
     });
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.rotation.x = -Math.PI / 2;
@@ -607,55 +769,59 @@ function createMaze() {
     floor.receiveShadow = true;
     maze.add(floor);
 
-    // Create clutter items
-    let clutterCount = Math.min(10 + (level-1)*3, 30);
+    // Progressive clutter placement for better game flow
+    let clutterCount = Math.min(12 + (level-1)*3, 35);
     for (let i = 0; i < clutterCount; i++) {
         let x, z;
         do { 
             x = Math.floor(Math.random() * mazeSize); 
             z = Math.floor(Math.random() * mazeSize); 
-        } while (mazeLayout[z][x] === 1 || (x <= 3 && z <= 3));
+        } while (mazeLayout[z][x] === 1 || (x <= 4 && z <= 4));
         
         const clutterItem = createClutterItem();
-        clutterItem.position.set(x, 0.3, z);
+        clutterItem.position.set(x, 0.35, z);
         clutter.push(clutterItem);
         scene.add(clutterItem);
     }
 
-    // Add power-ups
-    if (level > 1 && Math.random() < 0.8) {
-        let x, z;
-        do { 
-            x = Math.floor(Math.random() * mazeSize); 
-            z = Math.floor(Math.random() * mazeSize); 
-        } while (mazeLayout[z][x] === 1 || (x <= 3 && z <= 3));
-        
-        const powerup = createPowerup('health');
-        powerup.position.set(x, 0.5, z);
-        powerups.push(powerup);
-        scene.add(powerup);
+    // Enhanced power-up system
+    const powerupChance = Math.min(0.3 + (level * 0.1), 0.9);
+    if (Math.random() < powerupChance) {
+        for (let i = 0; i < Math.min(level, 3); i++) {
+            let x, z;
+            do { 
+                x = Math.floor(Math.random() * mazeSize); 
+                z = Math.floor(Math.random() * mazeSize); 
+            } while (mazeLayout[z][x] === 1 || (x <= 5 && z <= 5));
+            
+            const powerupType = Math.random() < 0.7 ? 'health' : 'speed';
+            const powerup = createPowerup(powerupType);
+            powerup.position.set(x, 0.6, z);
+            powerups.push(powerup);
+            scene.add(powerup);
+        }
     }
 
-    // Create customers with better AI
-    let goodCustomers = Math.min(2 + Math.floor(level*0.8), 6);
-    let badCustomers = Math.min(level*1.5, 12);
+    // Balanced customer placement for optimal challenge
+    let goodCustomers = Math.min(3 + Math.floor(level*0.5), 8);
+    let badCustomers = Math.min(Math.floor(level*1.2), 15);
     
     for (let i = 0; i < goodCustomers; i++) {
         let x, z;
         do { 
             x = Math.floor(Math.random() * mazeSize); 
             z = Math.floor(Math.random() * mazeSize);
-        } while (mazeLayout[z][x] === 1 || (x <= 4 && z <= 4) || distance2D(x, z, 2, 2) < 5);
+        } while (mazeLayout[z][x] === 1 || (x <= 6 && z <= 6) || distance2D(x, z, 2, 2) < 6);
         
         const customer = createCustomer('good');
         customer.position.set(x, 0.8, z);
         customer.userData = { 
             type: 'good', 
             direction: new THREE.Vector3(Math.random()-0.5,0,Math.random()-0.5).normalize(), 
-            nextDirectionChange: Date.now()+Math.random()*4000+3000, 
+            nextDirectionChange: Date.now()+Math.random()*5000+4000, 
             chasing: false, 
             health: 1,
-            speed: customerSpeed * 0.6
+            speed: customerSpeed * 0.4
         };
         customers.push(customer);
         scene.add(customer);
@@ -666,18 +832,19 @@ function createMaze() {
         do { 
             x = Math.floor(Math.random() * mazeSize); 
             z = Math.floor(Math.random() * mazeSize);
-        } while (mazeLayout[z][x] === 1 || (x <= 4 && z <= 4) || distance2D(x, z, 2, 2) < 5);
+        } while (mazeLayout[z][x] === 1 || (x <= 6 && z <= 6) || distance2D(x, z, 2, 2) < 6);
         
         const customer = createCustomer('bad');
         customer.position.set(x, 0.8, z);
         customer.userData = { 
             type: 'bad', 
             direction: new THREE.Vector3(Math.random()-0.5,0,Math.random()-0.5).normalize(), 
-            nextDirectionChange: Date.now()+Math.random()*3000+2000, 
+            nextDirectionChange: Date.now()+Math.random()*4000+3000, 
             chasing: false, 
             health: 3,
-            speed: customerSpeed,
-            lastPlayerSeen: 0
+            speed: customerSpeed * 0.8,
+            lastPlayerSeen: 0,
+            aggroRange: 5 + level * 0.5
         };
         customers.push(customer);
         scene.add(customer);
@@ -688,33 +855,61 @@ function createMaze() {
 }
 
 function createPlayer() {
-    const geometry = new THREE.OctahedronGeometry(0.35, 1);
+    const geometry = new THREE.OctahedronGeometry(0.3, 2);
     const material = new THREE.MeshPhongMaterial({ 
-        color: 0x00ffff, 
-        shininess: 100, 
+        color: 0x00ffdd, 
+        shininess: 150, 
         transparent: true, 
-        opacity: 0.9,
-        emissive: 0x003333
+        opacity: 0.95,
+        emissive: 0x002233,
+        specular: 0x00aaff
     });
     player = new THREE.Mesh(geometry, material);
-    player.position.set(2, 0.5, 2);
+    player.position.set(2, 0.4, 2);
     player.castShadow = true;
     scene.add(player);
 }
 
 function createShelfTexture() {
     const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    
+    // Rich wood texture
+    const gradient = ctx.createLinearGradient(0, 0, 256, 256);
+    gradient.addColorStop(0, '#4a3728');
+    gradient.addColorStop(0.5, '#5d4037');
+    gradient.addColorStop(1, '#3e2723');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 256, 256);
+    
+    // Wood grain details
+    for (let i = 0; i < 300; i++) {
+        ctx.fillStyle = `rgba(${74+Math.random()*40},${55+Math.random()*25},${40+Math.random()*20},0.3)`;
+        ctx.fillRect(Math.random()*256, Math.random()*256, 2, 2);
+    }
+    
+    return new THREE.CanvasTexture(canvas);
+}
+
+function createFloorTexture() {
+    const canvas = document.createElement('canvas');
     canvas.width = canvas.height = 128;
     const ctx = canvas.getContext('2d');
     
-    // Base color
-    ctx.fillStyle = '#654321';
+    // Subtle tile pattern
+    ctx.fillStyle = '#e8e8e8';
     ctx.fillRect(0, 0, 128, 128);
     
-    // Add wood grain
-    for (let i = 0; i < 200; i++) {
-        ctx.fillStyle = `rgba(${101+Math.random()*30},${67+Math.random()*20},${33+Math.random()*20},0.4)`;
-        ctx.fillRect(Math.random()*128, Math.random()*128, 2, 2);
+    ctx.strokeStyle = '#d0d0d0';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 128; i += 32) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, 128);
+        ctx.moveTo(0, i);
+        ctx.lineTo(128, i);
+        ctx.stroke();
     }
     
     return new THREE.CanvasTexture(canvas);
@@ -722,21 +917,26 @@ function createShelfTexture() {
 
 function createClutterItem() {
     const geometries = [
-        new THREE.BoxGeometry(0.4,0.4,0.4), 
-        new THREE.SphereGeometry(0.25,8,6), 
-        new THREE.CylinderGeometry(0.15,0.15,0.4,8)
+        new THREE.BoxGeometry(0.35,0.35,0.35), 
+        new THREE.SphereGeometry(0.22,12,8), 
+        new THREE.CylinderGeometry(0.12,0.12,0.35,12),
+        new THREE.ConeGeometry(0.15, 0.4, 8)
     ];
     const geometry = geometries[Math.floor(Math.random()*geometries.length)];
+    
+    // More vibrant, appealing colors
+    const hue = 0.12 + Math.random() * 0.08; // Golden yellow range
     const material = new THREE.MeshPhongMaterial({ 
-        color: new THREE.Color().setHSL(0.15, 0.9, 0.8), 
-        emissive: new THREE.Color().setHSL(0.15,0.5,0.3),
-        shininess: 50
+        color: new THREE.Color().setHSL(hue, 0.9, 0.7), 
+        emissive: new THREE.Color().setHSL(hue, 0.7, 0.2),
+        shininess: 80,
+        specular: 0xffffff
     });
     const item = new THREE.Mesh(geometry, material);
     item.castShadow = true;
     item.userData = { 
-        rotationSpeed: Math.random()*0.08+0.03, 
-        bobSpeed: Math.random()*0.008+0.004, 
+        rotationSpeed: Math.random()*0.06+0.02, 
+        bobSpeed: Math.random()*0.006+0.003, 
         bobOffset: Math.random()*Math.PI*2 
     };
     return item;
@@ -744,47 +944,66 @@ function createClutterItem() {
 
 function createCustomer(type) {
     const customer = new THREE.Group();
-    const color = type === 'bad' ? 0xff3333 : 0x33ff33;
+    const color = type === 'bad' ? 0xff4444 : 0x44ff44;
+    const emissiveColor = type === 'bad' ? 0x330000 : 0x003300;
+    
     const material = new THREE.MeshPhongMaterial({ 
         color: color, 
-        emissive: new THREE.Color(color).multiplyScalar(0.2),
-        shininess: 30
+        emissive: emissiveColor,
+        shininess: 50,
+        specular: 0x444444
     });
     
-    // Body
-    const bodyGeometry = new THREE.CylinderGeometry(0.3,0.35,1.0,8);
+    // Enhanced character design
+    const bodyGeometry = new THREE.CylinderGeometry(0.25,0.3,0.9,12);
     const body = new THREE.Mesh(bodyGeometry, material);
-    body.position.y = 0.5;
+    body.position.y = 0.45;
     body.castShadow = true;
     customer.add(body);
     
-    // Head
-    const headGeometry = new THREE.SphereGeometry(0.25,8,6);
+    const headGeometry = new THREE.SphereGeometry(0.22,12,8);
     const head = new THREE.Mesh(headGeometry, material);
-    head.position.y = 1.2;
+    head.position.y = 1.1;
     head.castShadow = true;
     customer.add(head);
     
-    // Eyes
-    const eyeGeometry = new THREE.SphereGeometry(0.06,4,4);
-    const eyeMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+    // Detailed eyes
+    const eyeGeometry = new THREE.SphereGeometry(0.05,8,6);
+    const eyeMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 100 });
     const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-    leftEye.position.set(-0.1,1.25,0.2);
+    leftEye.position.set(-0.08,1.15,0.18);
     const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-    rightEye.position.set(0.1,1.25,0.2);
+    rightEye.position.set(0.08,1.15,0.18);
     customer.add(leftEye);
     customer.add(rightEye);
+    
+    // Pupils
+    const pupilGeometry = new THREE.SphereGeometry(0.02,6,4);
+    const pupilMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
+    const leftPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
+    leftPupil.position.set(-0.08,1.15,0.2);
+    const rightPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
+    rightPupil.position.set(0.08,1.15,0.2);
+    customer.add(leftPupil);
+    customer.add(rightPupil);
     
     customer.userData = { type: type, health: type==='bad'?3:1 };
     return customer;
 }
 
 function createPowerup(type) {
-    const geometry = new THREE.TorusGeometry(0.25, 0.08, 8, 16);
+    const geometry = new THREE.TorusGeometry(0.22, 0.06, 12, 24);
+    const colors = {
+        health: { main: 0xff44ff, emissive: 0x440044 },
+        speed: { main: 0x44ff44, emissive: 0x004400 }
+    };
+    const color = colors[type] || colors.health;
+    
     const material = new THREE.MeshPhongMaterial({ 
-        color: type==='health'?0xff00ff:0x00ff00, 
-        emissive: type==='health'?0x330033:0x003300,
-        shininess: 100
+        color: color.main, 
+        emissive: color.emissive,
+        shininess: 120,
+        specular: 0xffffff
     });
     const mesh = new THREE.Mesh(geometry, material);
     mesh.castShadow = true;
@@ -796,7 +1015,37 @@ function distance2D(x1,z1,x2,z2) {
     return Math.sqrt((x1-x2)**2+(z1-z2)**2); 
 }
 
-// --- Event Listeners ---
+function updateComboDisplay() {
+    const comboEl = document.getElementById('comboDisplay');
+    const multiplierEl = document.getElementById('comboMultiplier');
+    const timerEl = document.getElementById('comboTimer');
+    
+    if (combo > 1) {
+        comboEl.style.display = 'block';
+        multiplierEl.textContent = combo;
+        
+        // Combo timer visualization
+        const timeLeft = Math.max(0, comboTimer - (Date.now() - lastCollectTime));
+        const progress = Math.min(5, Math.floor((timeLeft / comboTimer) * 5));
+        timerEl.textContent = '●'.repeat(progress) + '○'.repeat(5 - progress);
+        
+        // Color based on combo level
+        if (combo >= 10) {
+            comboEl.style.borderColor = '#ff00ff';
+            comboEl.style.color = '#ff00ff';
+        } else if (combo >= 5) {
+            comboEl.style.borderColor = '#ff4444';
+            comboEl.style.color = '#ff4444';
+        } else {
+            comboEl.style.borderColor = '#ffaa00';
+            comboEl.style.color = '#ffaa00';
+        }
+    } else {
+        comboEl.style.display = 'none';
+    }
+}
+
+// Event Listeners
 function setupEventListeners() {
     document.addEventListener('keydown', (event) => {
         keys[event.code] = true;
@@ -810,15 +1059,31 @@ function setupEventListeners() {
     });
     
     document.addEventListener('mousedown', (event) => {
-        if (gameState === 'playing' && !mobileMode) shoot();
+        if (gameState === 'playing' && !mobileMode) {
+            shoot();
+            // Resume audio context on first interaction
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
     });
+    
+    // Resume audio on touch for mobile
+    document.addEventListener('touchstart', (event) => {
+        if (audioContext && audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+    }, { once: true });
     
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
         
-        // Update mobile mode detection
+        // Update particle canvas
+        particleCanvas.width = window.innerWidth;
+        particleCanvas.height = window.innerHeight;
+        
         const wasMobile = mobileMode;
         mobileMode = isMobile();
         if (wasMobile !== mobileMode) {
@@ -826,44 +1091,51 @@ function setupEventListeners() {
         }
     });
 
-    // Prevent context menu on mobile
     document.addEventListener('contextmenu', function(e) {
         e.preventDefault();
     });
 }
 
-// --- Shooting ---
+// Enhanced shooting with better feedback
 function shoot() {
     const currentTime = Date.now();
-    if (currentTime - lastShot < 150) return;
+    if (currentTime - lastShot < 120) return;
     lastShot = currentTime;
     
-    playSound("shoot");
+    playSound("shoot", 0.2);
     
-    const projectileGeometry = new THREE.SphereGeometry(0.06,8,6);
+    const projectileGeometry = new THREE.SphereGeometry(0.05,8,6);
     const projectileMaterial = new THREE.MeshPhongMaterial({ 
         color: 0x00ffff, 
-        emissive: 0x004444,
-        shininess: 100
+        emissive: 0x004466,
+        shininess: 150
     });
     const projectile = new THREE.Mesh(projectileGeometry, projectileMaterial);
     projectile.position.copy(player.position);
-    projectile.position.y += 0.3;
+    projectile.position.y += 0.25;
     
-    // Shoot in forward direction (up on screen)
     const direction = new THREE.Vector3(0,0,-1);
-    projectile.userData = { direction: direction, speed: 0.6, life: 120 };
+    projectile.userData = { direction: direction, speed: 0.4, life: 150 };
     projectiles.push(projectile);
     scene.add(projectile);
+    
+    // Slight screen shake for shooting feedback
+    addScreenShake(1);
 }
 
 function startGame() {
     gameState = 'playing'; 
     level = 1; 
     score = 0; 
-    health = maxHealth; 
+    health = maxHealth;
+    streak = 0;
+    combo = 1;
+    bestCombo = 1;
+    totalCollected = 0;
+    lastCollectTime = Date.now();
     createMaze(); 
-    player.position.set(2, 0.5, 2);
+    player.position.set(2, 0.4, 2);
+    updateComboDisplay();
 }
 
 function restartGame() {
@@ -875,10 +1147,23 @@ function nextLevel() {
     document.getElementById('levelComplete').style.display = 'none';
     gameState = 'playing'; 
     level++;
-    customerSpeed += 0.002;
-    playerSpeed += 0.005;
+    
+    // Progressive difficulty scaling
+    customerSpeed += 0.0015;
+    playerSpeed += 0.003;
+    
+    // Level completion bonus
+    const levelBonus = level * 100 + (combo * 50);
+    score += levelBonus;
+    document.getElementById('levelBonus').textContent = levelBonus;
+    
     createMaze();
-    player.position.set(2, 0.5, 2);
+    player.position.set(2, 0.4, 2);
+    
+    // Reset combo for new level but keep some streak
+    combo = Math.max(1, Math.floor(combo * 0.5));
+    lastCollectTime = Date.now();
+    updateComboDisplay();
 }
 
 function pauseGame() {
@@ -894,6 +1179,7 @@ function resumeGame() {
     if (gameState === 'paused') {
         gameState = 'playing';
         document.getElementById("pauseMenu").style.display = "none";
+        lastCollectTime = Date.now(); // Reset combo timer
     }
 }
 
@@ -901,11 +1187,34 @@ function collectPowerup(index) {
     const p = powerups[index];
     if (p.userData.type === 'health') {
         health = Math.min(maxHealth, health+1);
-        playSound("powerup");
+        playSound("powerup", 0.4);
+    } else if (p.userData.type === 'speed') {
+        playerSpeed += 0.01;
+        playSound("powerup", 0.4);
     }
+    
+    // Particle effect
+    const screenPos = worldToScreen(p.position);
+    if (screenPos) {
+        createParticle(screenPos.x, screenPos.y, '#ff44ff', 15);
+    }
+    
     scene.remove(p);
     powerups.splice(index,1);
     updateUI();
+    addScreenShake(3);
+}
+
+function worldToScreen(worldPos) {
+    const vector = worldPos.clone();
+    vector.project(camera);
+    
+    if (vector.z > 1) return null;
+    
+    return {
+        x: (vector.x + 1) * window.innerWidth / 2,
+        y: (-vector.y + 1) * window.innerHeight / 2
+    };
 }
 
 function checkCollision(newPos) {
@@ -914,12 +1223,10 @@ function checkCollision(newPos) {
     
     if (gridX < 0 || gridX >= mazeSize || gridZ < 0 || gridZ >= mazeSize) return true;
     
-    const buffer = 0.35;
+    const buffer = 0.3;
     
-    // Check current position
     if (mazeLayout[gridZ] && mazeLayout[gridZ][gridX] === 1) return true;
     
-    // Check surrounding walls
     const checks = [
         [gridX-1,gridZ], [gridX+1,gridZ], 
         [gridX,gridZ-1], [gridX,gridZ+1],
@@ -961,44 +1268,82 @@ function updatePlayer() {
         
         if (!checkCollision(newPosition)) {
             player.position.copy(newPosition);
-            // Enhanced movement animations
-            player.rotation.y += 0.05;
-            player.rotation.x = Math.sin(Date.now()*0.005)*0.2;
-            player.position.y = 0.5 + Math.sin(Date.now()*0.008)*0.1;
+            // Smooth movement animations
+            player.rotation.y += 0.04;
+            player.rotation.x = Math.sin(Date.now()*0.004)*0.15;
+            player.position.y = 0.4 + Math.sin(Date.now()*0.006)*0.08;
         }
     } else {
         // Idle animations
-        player.rotation.y += 0.02;
-        player.position.y = 0.5 + Math.sin(Date.now()*0.003)*0.05;
+        player.rotation.y += 0.015;
+        player.position.y = 0.4 + Math.sin(Date.now()*0.002)*0.04;
     }
 
-    // Enhanced camera tracking - closer and more responsive
+    // Perfect camera tracking
     camera.position.x = player.position.x;
     camera.position.z = player.position.z;
-    camera.position.y = 5.5; // Perfect height above walls
+    camera.position.y = 6.5;
     camera.lookAt(player.position.x, player.position.y, player.position.z);
 
-    // Collect clutter items
+    // Enhanced collection system with combo mechanics
     for (let i = clutter.length-1; i>=0; i--) {
         const distance = player.position.distanceTo(clutter[i].position);
-        if (distance < 1.0) {
+        if (distance < 0.9) {
+            const currentTime = Date.now();
+            const timeSinceLastCollect = currentTime - lastCollectTime;
+            
+            // Combo system
+            if (timeSinceLastCollect < comboTimer) {
+                combo = Math.min(combo + 1, 99);
+                if (combo > bestCombo) bestCombo = combo;
+            } else {
+                if (combo > 1) {
+                    playSound("comboBreak", 0.3);
+                }
+                combo = 1;
+            }
+            
+            lastCollectTime = currentTime;
+            
+            // Score calculation with combo multiplier
+            const baseScore = 25;
+            const comboBonus = baseScore * (combo - 1) * 0.5;
+            const totalPoints = Math.floor(baseScore + comboBonus);
+            
             scene.remove(clutter[i]);
             clutter.splice(i,1);
-            score += 15;
-            playSound("collect");
+            score += totalPoints;
+            streak++;
+            totalCollected++;
+            
+            // Audio feedback based on combo
+            if (combo > 5) {
+                playSound("comboCollect", 0.4);
+            } else {
+                playSound("collect", 0.3);
+            }
+            
+            // Visual feedback
+            const screenPos = worldToScreen(player.position);
+            if (screenPos) {
+                const color = combo > 5 ? '#ffaa00' : '#ffff00';
+                createParticle(screenPos.x, screenPos.y, color, 12);
+            }
             
             // Enhanced collection effect
-            player.scale.set(1.4,1.4,1.4);
+            player.scale.set(1.3,1.3,1.3);
             setTimeout(()=>{ 
                 if (player) player.scale.set(1,1,1);
-            }, 200);
+            }, 180);
             
             updateUI();
+            updateComboDisplay();
+            addScreenShake(2);
             
             if (clutter.length === 0) {
                 gameState = 'levelComplete';
                 document.getElementById('levelScore').textContent = score;
-                playSound("levelup");
+                playSound("levelup", 0.5);
                 document.getElementById('levelComplete').style.display = 'block';
                 saveLeaderboard(score);
             }
@@ -1008,9 +1353,15 @@ function updatePlayer() {
     // Collect power-ups
     for (let i = powerups.length-1; i>=0; i--) {
         const distance = player.position.distanceTo(powerups[i].position);
-        if (distance < 0.8) {
+        if (distance < 0.7) {
             collectPowerup(i);
         }
+    }
+    
+    // Check combo timeout
+    if (Date.now() - lastCollectTime > comboTimer && combo > 1) {
+        combo = 1;
+        updateComboDisplay();
     }
 }
 
@@ -1022,22 +1373,23 @@ function updateCustomers() {
         const distanceToPlayer = customer.position.distanceTo(player.position);
         
         if (customer.userData.type === 'bad') {
-            if (distanceToPlayer < 4) {
+            const aggroRange = customer.userData.aggroRange || 5;
+            if (distanceToPlayer < aggroRange) {
                 customer.userData.chasing = true;
                 customer.userData.lastPlayerSeen = currentTime;
                 const direction = player.position.clone().sub(customer.position).normalize();
                 customer.userData.direction = direction;
-            } else if (currentTime - customer.userData.lastPlayerSeen > 4000) {
+            } else if (currentTime - customer.userData.lastPlayerSeen > 3000) {
                 customer.userData.chasing = false;
                 if (currentTime > customer.userData.nextDirectionChange) {
                     customer.userData.direction = new THREE.Vector3(
                         Math.random()-0.5,0,Math.random()-0.5
                     ).normalize();
-                    customer.userData.nextDirectionChange = currentTime + Math.random()*5000+3000;
+                    customer.userData.nextDirectionChange = currentTime + Math.random()*4000+2000;
                 }
             }
         } else {
-            // Good customers wander randomly
+            // Good customers wander more naturally
             if (currentTime > customer.userData.nextDirectionChange) {
                 customer.userData.direction = new THREE.Vector3(
                     Math.random()-0.5,0,Math.random()-0.5
@@ -1048,8 +1400,8 @@ function updateCustomers() {
         }
         
         const speed = customer.userData.chasing ? 
-            customer.userData.speed * 1.8 : 
-            customer.userData.speed * 0.7;
+            customer.userData.speed * 1.5 : 
+            customer.userData.speed * 0.6;
             
         const moveVector = customer.userData.direction.clone().multiplyScalar(speed);
         const newPosition = customer.position.clone().add(moveVector);
@@ -1061,27 +1413,37 @@ function updateCustomers() {
         }
         
         // Enhanced collision with player
-        if (distanceToPlayer < 0.7 && customer.userData.type === 'bad') {
+        if (distanceToPlayer < 0.6 && customer.userData.type === 'bad') {
             const currentTime = Date.now();
-            if (currentTime - lastHitTime > 1200 && !playerInvincible) {
+            if (currentTime - lastHitTime > 1000 && !playerInvincible) {
                 health--;
                 lastHitTime = currentTime;
                 playerInvincible = true;
-                playSound("hit");
                 
-                setTimeout(()=>{ playerInvincible = false; }, 1200);
+                // Break combo on hit
+                if (combo > 1) {
+                    combo = 1;
+                    updateComboDisplay();
+                    playSound("comboBreak", 0.4);
+                }
+                
+                playSound("hit", 0.5);
+                addScreenShake(8);
+                
+                setTimeout(()=>{ playerInvincible = false; }, 1000);
                 updateUI();
                 
-                // Push player away
+                // Push player away with more force
                 const pushDirection = player.position.clone().sub(customer.position).normalize();
-                const pushPos = player.position.clone().add(pushDirection.multiplyScalar(0.5));
+                const pushPos = player.position.clone().add(pushDirection.multiplyScalar(0.8));
                 if (!checkCollision(pushPos)) player.position.copy(pushPos);
                 
                 if (health <= 0) {
                     gameState = 'gameOver';
                     document.getElementById('finalScore').textContent = score;
+                    document.getElementById('finalCombo').textContent = bestCombo;
                     document.getElementById('gameOver').style.display = 'block';
-                    playSound("gameover");
+                    playSound("gameover", 0.6);
                     saveLeaderboard(score);
                 }
             }
@@ -1093,7 +1455,7 @@ function updateCustomers() {
         }
         
         // Enhanced bobbing animation
-        customer.position.y = 0.8 + Math.sin(currentTime*0.003+customerIndex)*0.05;
+        customer.position.y = 0.8 + Math.sin(currentTime*0.002+customerIndex)*0.04;
     });
 }
 
@@ -1115,13 +1477,24 @@ function updateProjectiles() {
         for (let j = customers.length-1; j>=0; j--) {
             const customer = customers[j];
             const distance = projectile.position.distanceTo(customer.position);
-            if (distance < 0.6) {
+            if (distance < 0.5) {
                 customer.userData.health--;
                 if (customer.userData.health <= 0) {
+                    // Particle effect on hit
+                    const screenPos = worldToScreen(customer.position);
+                    if (screenPos) {
+                        const color = customer.userData.type === 'bad' ? '#ff4444' : '#44ff44';
+                        createParticle(screenPos.x, screenPos.y, color, 10);
+                    }
+                    
                     scene.remove(customer);
                     customers.splice(j,1);
-                    score += customer.userData.type==='bad'?75:-25;
-                    playSound("hit");
+                    
+                    const points = customer.userData.type==='bad' ? 100 : -50;
+                    score += points;
+                    
+                    playSound("hit", 0.3);
+                    addScreenShake(4);
                     updateUI();
                 }
                 scene.remove(projectile);
@@ -1143,16 +1516,16 @@ function updateProjectiles() {
 }
 
 function updateMinimap() {
-    if (!minimapCtx) return;
+    if (!minimapCtx || mobileMode) return;
     
     const mapSize = minimapCanvas.width;
-    minimapCtx.fillStyle = '#000';
+    minimapCtx.fillStyle = '#0f0f23';
     minimapCtx.fillRect(0,0,mapSize,mapSize);
     
     const scale = mapSize/mazeSize;
     
     // Draw walls
-    minimapCtx.fillStyle = '#654321';
+    minimapCtx.fillStyle = '#4a3728';
     for (let z=0;z<mazeSize;z++) {
         for (let x=0;x<mazeSize;x++) {
             if (mazeLayout[z][x]===1) {
@@ -1161,8 +1534,10 @@ function updateMinimap() {
         }
     }
     
-    // Draw clutter
-    minimapCtx.fillStyle = '#ffff00';
+    // Draw clutter with glow
+    minimapCtx.shadowBlur = 5;
+    minimapCtx.shadowColor = '#ffaa00';
+    minimapCtx.fillStyle = '#ffaa00';
     clutter.forEach(item=>{
         const x=item.position.x*scale;
         const z=item.position.z*scale;
@@ -1170,7 +1545,8 @@ function updateMinimap() {
     });
     
     // Draw powerups
-    minimapCtx.fillStyle = '#ff00ff';
+    minimapCtx.shadowColor = '#ff44ff';
+    minimapCtx.fillStyle = '#ff44ff';
     powerups.forEach(item=>{
         const x=item.position.x*scale;
         const z=item.position.z*scale;
@@ -1178,28 +1554,36 @@ function updateMinimap() {
     });
     
     // Draw customers
+    minimapCtx.shadowBlur = 3;
     customers.forEach(customer=>{
-        minimapCtx.fillStyle = customer.userData.type==='bad'?'#ff3333':'#33ff33';
+        const color = customer.userData.type==='bad'?'#ff4444':'#44ff44';
+        minimapCtx.shadowColor = color;
+        minimapCtx.fillStyle = color;
         const x=customer.position.x*scale;
         const z=customer.position.z*scale;
-        minimapCtx.fillRect(x-3,z-3,6,6);
+        minimapCtx.fillRect(x-2,z-2,4,4);
     });
     
-    // Draw player
-    minimapCtx.fillStyle = '#00ffff';
+    // Draw player with enhanced glow
+    minimapCtx.shadowBlur = 8;
+    minimapCtx.shadowColor = '#00ffdd';
+    minimapCtx.fillStyle = '#00ffdd';
     const px=player.position.x*scale;
     const pz=player.position.z*scale;
     minimapCtx.fillRect(px-4,pz-4,8,8);
+    
+    minimapCtx.shadowBlur = 0;
 }
 
 function updateUI() {
-    let levelName = level===1?'1 (Easy)':level===2?'2 (Medium)':level===3?'3 (Hard)':level+' (Expert)';
+    let levelName = level===1?'1 (Tutorial)':level===2?'2 (Novice)':level===3?'3 (Skilled)':level===4?'4 (Expert)':level+' (Master)';
     document.getElementById('level').textContent = levelName;
     document.getElementById('clutter').textContent = clutter.length;
-    document.getElementById('score').textContent = score;
+    document.getElementById('score').textContent = score.toLocaleString();
+    document.getElementById('streak').textContent = streak;
     
     let healthDisplay = '';
-    for (let i=0; i<Math.max(health,0); i++) healthDisplay+='❤️';
+    for (let i=0; i<Math.max(health,0); i++) healthDisplay+='💎';
     for (let i=health; i<maxHealth; i++) healthDisplay+='🖤';
     document.getElementById('health').textContent = healthDisplay;
 }
@@ -1214,30 +1598,49 @@ function animate() {
         updateMinimap();
     }
     
+    // Update particles
+    updateParticles();
+    renderParticles();
+    
     // Enhanced animations
     const time = Date.now();
     
-    // Animate clutter items
+    // Animate clutter items with more dynamic movement
     clutter.forEach((item,index)=>{
         if (item.userData) {
             item.rotation.y += item.userData.rotationSpeed;
-            item.rotation.x += item.userData.rotationSpeed * 0.5;
-            item.position.y = 0.3 + Math.sin(time*item.userData.bobSpeed+item.userData.bobOffset)*0.12;
+            item.rotation.x += item.userData.rotationSpeed * 0.3;
+            item.position.y = 0.35 + Math.sin(time*item.userData.bobSpeed+item.userData.bobOffset)*0.1;
+            
+            // Subtle pulsing
+            const pulse = 1 + Math.sin(time*0.005+index) * 0.1;
+            item.scale.set(pulse, pulse, pulse);
         }
     });
     
-    // Animate powerups
+    // Animate powerups with attractive motion
     powerups.forEach((item,index)=>{
-        item.rotation.y += 0.08;
-        item.rotation.z += 0.06;
-        item.position.y = 0.5 + Math.sin(time*0.004+index)*0.1;
+        item.rotation.y += 0.06;
+        item.rotation.z += 0.04;
+        item.position.y = 0.6 + Math.sin(time*0.003+index)*0.12;
+        
+        const pulse = 1 + Math.sin(time*0.008+index) * 0.2;
+        item.scale.set(pulse, pulse, pulse);
     });
     
     // Player invincibility visual effect
     if (playerInvincible) {
-        player.material.opacity = 0.5 + Math.sin(time*0.02)*0.3;
+        player.material.opacity = 0.4 + Math.sin(time*0.03)*0.4;
     } else {
-        player.material.opacity = 0.9;
+        player.material.opacity = 0.95;
+    }
+    
+    // Apply screen shake
+    if (screenShake > 0) {
+        camera.position.x += (Math.random() - 0.5) * screenShake * 0.02;
+        camera.position.z += (Math.random() - 0.5) * screenShake * 0.02;
+        screenShake *= 0.85;
+        if (screenShake < 0.1) screenShake = 0;
     }
     
     renderer.render(scene, camera);
@@ -1246,9 +1649,15 @@ function animate() {
 function saveLeaderboard(newScore) {
     try {
         let scores = JSON.parse(window.localStorage?.getItem("diamondScores") || "[]");
-        scores.push({score: newScore, date: new Date().toLocaleDateString()});
+        scores.push({
+            score: newScore, 
+            combo: bestCombo,
+            level: level,
+            collected: totalCollected,
+            date: new Date().toLocaleDateString()
+        });
         scores.sort((a,b) => b.score - a.score);
-        scores = scores.slice(0,10);
+        scores = scores.slice(0,15);
         window.localStorage?.setItem("diamondScores", JSON.stringify(scores));
         leaderboardScores = scores;
     } catch(e) {
@@ -1266,17 +1675,25 @@ function loadLeaderboard() {
 
 function showLeaderboard() {
     loadLeaderboard();
-    let listHTML = "<ol style='text-align:left; margin:0; padding-left:20px;'>";
+    let listHTML = "<div style='text-align:left; margin:0; padding:10px;'>";
     if (leaderboardScores.length === 0) {
-        listHTML += "<li>No scores yet!</li>";
+        listHTML += "<p>No scores yet! Be the first Diamond Master!</p>";
     } else {
-        leaderboardScores.forEach(entry => {
-            const score = typeof entry === 'object' ? entry.score : entry;
-            const date = typeof entry === 'object' ? entry.date : '';
-            listHTML += `<li>${score} ${date ? '- ' + date : ''}</li>`;
+        listHTML += "<ol style='margin:0; padding-left:20px;'>";
+        leaderboardScores.forEach((entry, index) => {
+            const score = entry.score || entry;
+            const combo = entry.combo || 1;
+            const level = entry.level || 1;
+            const date = entry.date || '';
+            const rank = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+            listHTML += `<li style="margin:5px 0; padding:5px; background:rgba(0,255,136,0.1); border-radius:5px;">
+                ${rank} <strong>${score.toLocaleString()}</strong> pts 
+                <br><small>Level ${level} • Best Combo: ${combo}x • ${date}</small>
+            </li>`;
         });
+        listHTML += "</ol>";
     }
-    listHTML += "</ol>";
+    listHTML += "</div>";
     document.getElementById("scoresList").innerHTML = listHTML;
     document.getElementById("leaderboard").style.display = "block";
 }
