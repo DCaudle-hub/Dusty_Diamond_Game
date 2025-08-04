@@ -3,76 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <title>The Dusty Diamond: Store Processing Game</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0">
     <!-- Thumbnail for link sharing (diamond icon) -->
     <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Crystal_Clear_action_diamond.png/240px-Crystal_Clear_action_diamond.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Crystal_Clear_action_diamond.png/240px-Crystal_Clear_action_diamond.png">
-    <!-- You can use your own diamond PNG if you wish! -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        body { margin: 0; padding: 0; background: #000; font-family: 'Courier New', monospace; overflow: hidden; cursor: none;}
-        #gameContainer { position: relative; width: 100vw; height: 100vh; }
-        #ui, #pauseMenu, #leaderboard {
-            position: absolute; top: 20px; left: 20px;
-            color: #00ff00; font-size: 18px; font-weight: bold; z-index: 100;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-            background: rgba(0,0,0,0.7); padding: 15px; border-radius: 10px;
+        * { 
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
         }
-        #crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; z-index: 150; pointer-events: none;}
-        #crosshair::before { content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: #00ff00; transform: translateY(-50%);}
-        #crosshair::after { content: ''; position: absolute; left: 50%; top: 0; width: 2px; height: 100%; background: #00ff00; transform: translateX(-50%);}
-        #instructions, #gameOver, #levelComplete {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            text-align: center; font-size: 16px; background: rgba(0,0,0,0.9); padding: 20px; border-radius: 10px; z-index: 200; max-height: 90vh; overflow-y: auto; max-width: 90vw;
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background: #000; 
+            font-family: 'Courier New', monospace; 
+            overflow: hidden; 
+            cursor: none;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+        #gameContainer { 
+            position: relative; 
+            width: 100vw; 
+            height: 100vh; 
+            overflow: hidden;
+        }
+        #ui {
+            position: absolute; 
+            top: 10px; 
+            left: 10px;
+            color: #00ff00; 
+            font-size: 16px; 
+            font-weight: bold; 
+            z-index: 100;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.8); 
+            padding: 12px; 
+            border-radius: 8px;
+            border: 1px solid #00ff00;
+        }
+        #crosshair { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            width: 24px; 
+            height: 24px; 
+            z-index: 150; 
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        #crosshair::before { 
+            content: ''; 
+            position: absolute; 
+            top: 50%; 
+            left: 0; 
+            width: 100%; 
+            height: 2px; 
+            background: #00ff00; 
+            transform: translateY(-50%);
+            box-shadow: 0 0 6px #00ff00;
+        }
+        #crosshair::after { 
+            content: ''; 
+            position: absolute; 
+            left: 50%; 
+            top: 0; 
+            width: 2px; 
+            height: 100%; 
+            background: #00ff00; 
+            transform: translateX(-50%);
+            box-shadow: 0 0 6px #00ff00;
+        }
+        #instructions, #gameOver, #levelComplete, #pauseMenu, #leaderboard {
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            text-align: center; 
+            font-size: 16px; 
+            background: rgba(0,0,0,0.95); 
+            padding: 20px; 
+            border-radius: 12px; 
+            z-index: 200; 
+            max-height: 90vh; 
+            overflow-y: auto; 
+            max-width: 90vw;
+            box-shadow: 0 0 20px rgba(0,255,0,0.3);
         }
         #instructions { border: 2px solid #00ff00; color: #00ff00; display: none; }
         #gameOver { border: 3px solid #ff0000; color: #ff0000; display: none;}
         #levelComplete { border: 3px solid #00ff00; color: #00ff00; display: none;}
-        .btn { background: #333; color: #00ff00; border: 2px solid #00ff00; padding: 10px 20px; margin: 10px; cursor: pointer; font-family: 'Courier New', monospace; font-size: 16px; border-radius: 5px;}
-        .btn:hover { background: #00ff00; color: #000;}
-        #minimap { position: absolute; top: 20px; right: 20px; width: 200px; height: 200px; background: rgba(0,0,0,0.8); border: 2px solid #00ff00; border-radius: 10px; z-index: 100;}
+        #pauseMenu { border: 2px solid #ffff00; color: #ffff00; display: none; }
+        #leaderboard { border: 2px solid #00ff00; color: #00ff00; display: none; }
+        
+        .btn { 
+            background: #333; 
+            color: #00ff00; 
+            border: 2px solid #00ff00; 
+            padding: 12px 24px; 
+            margin: 8px; 
+            cursor: pointer; 
+            font-family: 'Courier New', monospace; 
+            font-size: 16px; 
+            border-radius: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 0 10px rgba(0,255,0,0.2);
+        }
+        .btn:hover, .btn:active { 
+            background: #00ff00; 
+            color: #000;
+            box-shadow: 0 0 15px rgba(0,255,0,0.5);
+        }
+        
+        #minimap { 
+            position: absolute; 
+            top: 10px; 
+            right: 10px; 
+            width: 160px; 
+            height: 160px; 
+            background: rgba(0,0,0,0.9); 
+            border: 2px solid #00ff00; 
+            border-radius: 8px; 
+            z-index: 100;
+            box-shadow: 0 0 10px rgba(0,255,0,0.3);
+        }
+        
         #mobileControls {
             position: absolute;
-            bottom: 30px;
-            right: 30px;
+            bottom: 20px;
+            right: 20px;
             z-index: 1000;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
             touch-action: manipulation;
         }
         .mobile-row {
             display: flex;
             flex-direction: row;
-            gap: 8px;
+            gap: 12px;
         }
         .mobile-arrow {
-            width: 54px;
-            height: 54px;
-            background: rgba(0, 0, 0, 0.7);
-            border: 2px solid #00ff00;
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 3px solid #00ff00;
             border-radius: 50%;
             color: #00ff00;
-            font-size: 32px;
+            font-size: 28px;
             display: flex;
             justify-content: center;
             align-items: center;
             user-select: none;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.15s;
+            box-shadow: 0 0 15px rgba(0,255,0,0.3);
+            font-weight: bold;
         }
         .mobile-arrow:active {
             background: #00ff00;
             color: #000;
+            transform: scale(0.95);
+            box-shadow: 0 0 20px rgba(0,255,0,0.6);
         }
-        #pauseMenu { display: none; }
-        @media (max-width:600px) {
-            #minimap, #ui, #crosshair { display: none !important; }
-            #instructions, #gameOver, #levelComplete, #pauseMenu, #leaderboard { font-size: 14px;}
-            #mobileControls { bottom: 12px; right: 12px; }
-            .mobile-arrow { width: 44px; height: 44px; font-size: 24px; }
+        
+        #shootButton {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 0, 0, 0.8);
+            border: 3px solid #ff0000;
+            border-radius: 50%;
+            color: #ff0000;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 0 0 15px rgba(255,0,0,0.3);
+            font-weight: bold;
+            z-index: 1000;
+        }
+        #shootButton:active {
+            background: #ff0000;
+            color: #000;
+            transform: scale(0.9);
+            box-shadow: 0 0 25px rgba(255,0,0,0.7);
+        }
+        
+        @media (max-width: 768px) {
+            #ui { 
+                font-size: 14px; 
+                padding: 8px; 
+                top: 5px; 
+                left: 5px; 
+            }
+            #minimap { 
+                width: 120px; 
+                height: 120px; 
+                top: 5px; 
+                right: 5px; 
+            }
+            #crosshair { 
+                width: 20px; 
+                height: 20px; 
+            }
+            #instructions, #gameOver, #levelComplete, #pauseMenu, #leaderboard { 
+                font-size: 14px;
+                padding: 15px;
+            }
+            #mobileControls { 
+                bottom: 15px; 
+                right: 15px; 
+                gap: 8px;
+            }
+            .mobile-arrow { 
+                width: 50px; 
+                height: 50px; 
+                font-size: 24px; 
+            }
+            #shootButton {
+                bottom: 15px;
+                left: 15px;
+                width: 70px;
+                height: 70px;
+                font-size: 18px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            #ui { font-size: 12px; }
+            #minimap { width: 100px; height: 100px; }
+            .mobile-arrow { width: 45px; height: 45px; font-size: 20px; }
+            #shootButton { width: 60px; height: 60px; font-size: 16px; }
         }
     </style>
 </head>
@@ -81,23 +258,27 @@
     <div id="crosshair"></div>
     <div id="ui">
         <div>Level: <span id="level">1</span></div>
-        <div>Clutter Left: <span id="clutter">0</span></div>
+        <div>Clutter: <span id="clutter">0</span></div>
         <div>Score: <span id="score">0</span></div>
         <div>Health: <span id="health">❤️❤️❤️</span></div>
         <div>Ammo: <span id="ammo">∞</span></div>
-        <div style="font-size:14px;margin-top:8px;">[WASD] Move | [Mouse] Look | [Click] Shoot | [P] Pause | M = Mute</div>
+        <div style="font-size:12px;margin-top:6px;">[WASD] Move | [Click] Shoot | [P] Pause | M = Mute</div>
     </div>
     <canvas id="minimap"></canvas>
-    <div id="mobileControls" style="display:none;">
+    
+    <div id="mobileControls">
         <div class="mobile-row">
-            <button class="mobile-arrow" id="mobileUp">&#9650;</button>
+            <button class="mobile-arrow" id="mobileUp">▲</button>
         </div>
         <div class="mobile-row">
-            <button class="mobile-arrow" id="mobileLeft">&#9664;</button>
-            <button class="mobile-arrow" id="mobileDown">&#9660;</button>
-            <button class="mobile-arrow" id="mobileRight">&#9654;</button>
+            <button class="mobile-arrow" id="mobileLeft">◀</button>
+            <button class="mobile-arrow" id="mobileDown">▼</button>
+            <button class="mobile-arrow" id="mobileRight">▶</button>
         </div>
     </div>
+    
+    <button id="shootButton">💥</button>
+    
     <div id="instructions">
         <h2 style="margin: 0 0 10px 0; font-size: 24px;">💎 THE DUSTY DIAMOND 💎</h2>
         <h3 style="margin: 0 0 15px 0; font-size: 18px;">Store Processing Game</h3>
@@ -112,10 +293,10 @@
         <div style="margin: 10px 0; padding: 10px; background: rgba(255,255,0,0.1); border-radius: 8px;">
             <p style="margin: 5px 0; font-size: 14px; text-align: center;"><strong>🎮 CONTROLS:</strong></p>
             <p style="margin: 2px 0; text-align: center;">WASD = Move | Mouse = Look | Click = Spray | P = Pause | M = Mute</p>
-            <p style="margin: 2px 0; text-align: center;">On mobile: Use the green arrow buttons to move. Tap anywhere to shoot.</p>
+            <p style="margin: 2px 0; text-align: center;">On mobile: Use arrow buttons to move. Red button to shoot.</p>
         </div>
-        <!-- Start button removed for immediate play -->
     </div>
+    
     <div id="gameOver">
         <h2>STORE CLOSED!</h2>
         <p>The customers caught you!</p>
@@ -123,47 +304,60 @@
         <button class="btn" onclick="restartGame()">TRY AGAIN</button>
         <button class="btn" onclick="showLeaderboard()">LEADERBOARD</button>
     </div>
+    
     <div id="levelComplete">
         <h2>LEVEL PROCESSED!</h2>
         <p>Great job! Moving to next level...</p>
         <p>Score: <span id="levelScore">0</span></p>
         <button class="btn" onclick="nextLevel()">NEXT LEVEL</button>
     </div>
+    
     <div id="pauseMenu">
         <h2>PAUSED</h2>
         <p>Press [P] to resume</p>
         <button class="btn" onclick="resumeGame()">Resume</button>
     </div>
+    
     <div id="leaderboard">
         <h2>Top Scores</h2>
         <div id="scoresList"></div>
         <button class="btn" onclick="hideLeaderboard()">Close</button>
     </div>
 </div>
+
 <script>
 // --- Sound Effects ---
 const sounds = {
-    collect: new Audio('https://cdn.pixabay.com/audio/2022/10/16/audio_12b6f5e4b0.mp3'),
-    hit: new Audio('https://cdn.pixabay.com/audio/2022/10/16/audio_14b2b85e3d.mp3'),
-    shoot: new Audio('https://cdn.pixabay.com/audio/2022/10/16/audio_124e0e5a4a.mp3'),
-    levelup: new Audio('https://cdn.pixabay.com/audio/2022/10/16/audio_12b6f5e4b0.mp3'),
-    gameover: new Audio('https://cdn.pixabay.com/audio/2022/10/16/audio_14b2b85e3d.mp3'),
-    powerup: new Audio('https://cdn.pixabay.com/audio/2022/10/16/audio_12b6f5e4b0.mp3'),
+    collect: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTQIGWm98OScTgwOUarm7bgmCBSJ1fLNeSsFLIHO8tiIMAkZaLvt559NEAxRp+PwtmwOOJHH8KFXAAAAAA=='),
+    hit: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTQIGWm98OScTgwOUarm7bgmCBSJ1fLNeSsFLIHO8tiIMAkZaLvt559NEAxRp+PwtmwOOJHH8KFXAAAAAA=='),
+    shoot: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTQIGWm98OScTgwOUarm7bgmCBSJ1fLNeSsFLIHO8tiIMAkZaLvt559NEAxRp+PwtmwOOJHH8KFXAAAAAA=='),
+    levelup: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTQIGWm98OScTgwOUarm7bgmCBSJ1fLNeSsFLIHO8tiIMAkZaLvt559NEAxRp+PwtmwOOJHH8KFXAAAAAA=='),
+    gameover: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTQIGWm98OScTgwOUarm7bgmCBSJ1fLNeSsFLIHO8tiIMAkZaLvt559NEAxRp+PwtmwOOJHH8KFXAAAAAA=='),
+    powerup: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTQIGWm98OScTgwOUarm7bgmCBSJ1fLNeSsFLIHO8tiIMAkZaLvt559NEAxRp+PwtmwOOJHH8KFXAAAAAA=='),
 };
+
 let mute = false;
 function toggleMute() {
     mute = !mute;
     for (let s in sounds) sounds[s].muted = mute;
 }
-function playSound(name) { if (sounds[name] && !mute) { try { sounds[name].currentTime = 0; sounds[name].play(); } catch(e){} } }
+function playSound(name) { 
+    if (sounds[name] && !mute) { 
+        try { 
+            sounds[name].currentTime = 0; 
+            sounds[name].volume = 0.3;
+            sounds[name].play().catch(() => {}); 
+        } catch(e){} 
+    } 
+}
 
 // --- Game Variables ---
 let scene, camera, renderer, player, maze, customers = [], clutter = [], projectiles = [];
 let powerups = [];
-let gameState = 'playing'; // Immediately start game
+let gameState = 'playing';
 let level = 1, score = 0, health = 3, maxHealth = 3, playerInvincible = false;
 let keys = {}, mouseX = 0, mouseY = 0;
-let playerSpeed = 0.09, customerSpeed = 0.015;
+let playerSpeed = 0.12, customerSpeed = 0.018;
 let mazeSize = 21;
 let cameraRotationY = 0, cameraRotationX = 0;
 let lastShot = 0, lastHitTime = 0;
@@ -174,211 +368,433 @@ let mobileMode = false;
 let mobileMove = {up:false,down:false,left:false,right:false};
 
 function isMobile() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 }
 
 function init() {
     scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x444444, 10, 50);
+    scene.fog = new THREE.Fog(0x222222, 8, 35);
 
-    // Top-down tracking camera (Pac-Man style)
-    camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(2, 8, 2);
+    // Elevated camera for perfect view above walls
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(2, 5.5, 2); // Lower and closer for better detail view
     camera.lookAt(2, 0, 2);
 
-    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer = new THREE.WebGLRenderer({ 
+        antialias: true, 
+        alpha: false,
+        powerPreference: "high-performance"
+    });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setClearColor(0x87CEEB);
+    renderer.setClearColor(0x1a1a2e);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     document.getElementById('gameContainer').appendChild(renderer.domElement);
 
     minimapCanvas = document.getElementById('minimap');
     minimapCtx = minimapCanvas.getContext('2d');
-    minimapCanvas.width = 200; minimapCanvas.height = 200;
+    const mapSize = window.innerWidth <= 480 ? 100 : window.innerWidth <= 768 ? 120 : 160;
+    minimapCanvas.width = mapSize;
+    minimapCanvas.height = mapSize;
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    directionalLight.position.set(10, 15, 5);
+    // Enhanced lighting for better visibility
+    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(10, 20, 5);
     directionalLight.castShadow = true;
-    directionalLight.shadow.mapSize.width = 2048;
-    directionalLight.shadow.mapSize.height = 2048;
+    directionalLight.shadow.mapSize.width = 1024;
+    directionalLight.shadow.mapSize.height = 1024;
+    directionalLight.shadow.camera.near = 0.5;
+    directionalLight.shadow.camera.far = 50;
     scene.add(directionalLight);
-    const pointLight1 = new THREE.PointLight(0xffffff, 0.6, 20);
-    pointLight1.position.set(7, 5, 7); scene.add(pointLight1);
+    
+    // Multiple point lights for better illumination
+    const pointLight1 = new THREE.PointLight(0x00ffff, 0.4, 15);
+    pointLight1.position.set(5, 4, 5);
+    scene.add(pointLight1);
+    
+    const pointLight2 = new THREE.PointLight(0xff00ff, 0.3, 12);
+    pointLight2.position.set(15, 4, 15);
+    scene.add(pointLight2);
 
     createPlayer();
     createMaze();
     setupEventListeners();
     animate();
     loadLeaderboard();
+    
     mobileMode = isMobile();
-    document.getElementById('mobileControls').style.display = mobileMode ? 'block' : 'none';
-    if (mobileMode) setupMobileControls();
+    setupMobileControls();
+    
+    // Start game immediately for better UX
+    gameState = 'playing';
 }
 
 function setupMobileControls() {
-    function setMove(dir, val) { mobileMove[dir] = val;}
+    // Always show mobile controls, hide on desktop with CSS if needed
+    const controls = document.getElementById('mobileControls');
+    const shootBtn = document.getElementById('shootButton');
+    
+    if (mobileMode) {
+        controls.style.display = 'flex';
+        shootBtn.style.display = 'flex';
+    } else {
+        controls.style.display = 'none';
+        shootBtn.style.display = 'none';
+    }
+
+    function setMove(dir, val) { 
+        mobileMove[dir] = val;
+        // Visual feedback
+        const btn = document.getElementById('mobile' + dir.charAt(0).toUpperCase() + dir.slice(1));
+        if (btn) {
+            if (val) {
+                btn.style.background = '#00ff00';
+                btn.style.color = '#000';
+            } else {
+                btn.style.background = 'rgba(0, 0, 0, 0.8)';
+                btn.style.color = '#00ff00';
+            }
+        }
+    }
+
     let arrows = [
         {id:'mobileUp', dir:'up'},
         {id:'mobileDown', dir:'down'},
         {id:'mobileLeft', dir:'left'},
         {id:'mobileRight', dir:'right'}
     ];
+
     arrows.forEach(a => {
         let btn = document.getElementById(a.id);
-        btn.addEventListener('touchstart', function(e){e.preventDefault(); setMove(a.dir,true);});
-        btn.addEventListener('touchend', function(e){e.preventDefault(); setMove(a.dir,false);});
-        btn.addEventListener('mousedown', function(e){e.preventDefault(); setMove(a.dir,true);});
-        btn.addEventListener('mouseup', function(e){e.preventDefault(); setMove(a.dir,false);});
-        btn.addEventListener('mouseleave', function(e){e.preventDefault(); setMove(a.dir,false);});
+        if (btn) {
+            // Touch events
+            btn.addEventListener('touchstart', function(e){
+                e.preventDefault(); 
+                setMove(a.dir,true);
+            }, {passive: false});
+            
+            btn.addEventListener('touchend', function(e){
+                e.preventDefault(); 
+                setMove(a.dir,false);
+            }, {passive: false});
+            
+            // Mouse events for testing
+            btn.addEventListener('mousedown', function(e){
+                e.preventDefault(); 
+                setMove(a.dir,true);
+            });
+            
+            btn.addEventListener('mouseup', function(e){
+                e.preventDefault(); 
+                setMove(a.dir,false);
+            });
+            
+            btn.addEventListener('mouseleave', function(e){
+                e.preventDefault(); 
+                setMove(a.dir,false);
+            });
+        }
     });
-    renderer.domElement.addEventListener('touchend', function(e){
-        if(!e.target.classList.contains('mobile-arrow')) shoot();
+
+    // Shoot button
+    if (shootBtn) {
+        shootBtn.addEventListener('touchstart', function(e){
+            e.preventDefault();
+            shoot();
+        }, {passive: false});
+        
+        shootBtn.addEventListener('click', function(e){
+            e.preventDefault();
+            if (!mobileMode) return;
+            shoot();
+        });
+    }
+
+    // Prevent zoom and other mobile browser behaviors
+    document.addEventListener('touchstart', function(e) {
+        if (e.touches.length > 1) {
+            e.preventDefault();
+        }
+    }, {passive: false});
+
+    document.addEventListener('touchend', function(e) {
+        if (e.touches.length > 1) {
+            e.preventDefault();
+        }
+    }, {passive: false});
+
+    document.addEventListener('gesturestart', function(e) {
+        e.preventDefault();
     });
-    renderer.domElement.addEventListener('click', function(e){
-        if(!e.target.classList.contains('mobile-arrow')) shoot();
+
+    document.addEventListener('gesturechange', function(e) {
+        e.preventDefault();
+    });
+
+    document.addEventListener('gestureend', function(e) {
+        e.preventDefault();
     });
 }
 
 function createMaze() {
+    // Clean up existing objects
     if (maze) scene.remove(maze);
     customers.forEach(customer => scene.remove(customer));
     clutter.forEach(item => scene.remove(item));
     projectiles.forEach(proj => scene.remove(proj));
     powerups.forEach(p => scene.remove(p));
     customers = []; clutter = []; projectiles = []; powerups = [];
+    
     maze = new THREE.Group();
 
+    // Enhanced maze layout
     mazeLayout = [
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
-        [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
+        [1,0,1,1,0,0,1,0,1,1,1,1,1,0,1,0,0,1,1,0,1],
         [1,0,0,1,1,1,1,0,0,1,1,1,0,0,1,1,1,0,0,0,1],
         [1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,1],
-        [1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,1],
+        [1,0,0,1,0,1,1,1,0,1,0,1,1,1,0,0,1,0,1,0,1],
         [1,0,0,0,0,0,1,1,1,1,0,0,1,1,1,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+        [1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
+        [1,0,0,0,1,0,0,1,1,0,0,0,1,1,0,0,1,0,0,0,1],
         [1,1,1,0,0,0,1,1,0,0,0,0,0,1,1,0,0,0,1,1,1],
         [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
-        [1,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
+        [1,0,1,1,0,0,1,0,1,1,0,1,1,0,1,0,0,1,1,0,1],
         [1,0,0,1,1,1,1,0,0,1,1,1,0,0,1,1,1,1,0,0,1],
         [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
-        [1,0,0,1,1,1,0,0,0,1,0,0,0,0,0,1,1,1,0,0,1],
+        [1,0,1,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,1,0,1],
+        [1,0,0,1,1,1,0,1,0,1,0,1,0,0,0,1,1,1,0,0,1],
         [1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1],
-        [1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1],
+        [1,0,0,1,0,1,1,0,0,0,0,0,0,0,1,1,0,1,0,0,1],
         [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
         [1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
-    for (let z = 0; z < mazeSize; z++) for (let x = 0; x < mazeSize; x++)
-    if (mazeLayout[z][x] === 1) {
-        const wallGeometry = new THREE.BoxGeometry(1, 3, 1);
-        const wallMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513, map: createShelfTexture() });
-        const wall = new THREE.Mesh(wallGeometry, wallMaterial);
-        wall.position.set(x, 1.5, z); wall.castShadow = true; wall.receiveShadow = true;
-        maze.add(wall);
+    // Create walls with enhanced textures
+    for (let z = 0; z < mazeSize; z++) {
+        for (let x = 0; x < mazeSize; x++) {
+            if (mazeLayout[z][x] === 1) {
+                const wallGeometry = new THREE.BoxGeometry(1, 2.5, 1);
+                const wallMaterial = new THREE.MeshPhongMaterial({ 
+                    color: 0x654321, 
+                    map: createShelfTexture(),
+                    shininess: 30
+                });
+                const wall = new THREE.Mesh(wallGeometry, wallMaterial);
+                wall.position.set(x, 1.25, z);
+                wall.castShadow = true;
+                wall.receiveShadow = true;
+                maze.add(wall);
+            }
+        }
     }
 
+    // Enhanced floor
     const floorGeometry = new THREE.PlaneGeometry(mazeSize, mazeSize);
-    const floorMaterial = new THREE.MeshPhongMaterial({ color: 0xeeeeee, side: THREE.DoubleSide });
+    const floorMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0xf0f0f0,
+        side: THREE.DoubleSide,
+        shininess: 10
+    });
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.rotation.x = -Math.PI / 2;
-    floor.position.set(mazeSize/2 - 0.5, 0, mazeSize/2 - 0.5); floor.receiveShadow = true; maze.add(floor);
-    const ceiling = new THREE.Mesh(floorGeometry, new THREE.MeshPhongMaterial({ color: 0xcccccc, side: THREE.DoubleSide }));
-    ceiling.rotation.x = Math.PI / 2; ceiling.position.set(mazeSize/2 - 0.5, 3, mazeSize/2 - 0.5); maze.add(ceiling);
+    floor.position.set(mazeSize/2 - 0.5, 0, mazeSize/2 - 0.5);
+    floor.receiveShadow = true;
+    maze.add(floor);
 
-    let clutterCount = Math.min(8 + (level-1)*4, 25);
+    // Create clutter items
+    let clutterCount = Math.min(10 + (level-1)*3, 30);
     for (let i = 0; i < clutterCount; i++) {
         let x, z;
-        do { x = Math.floor(Math.random() * mazeSize); z = Math.floor(Math.random() * mazeSize); }
-        while (mazeLayout[z][x] === 1 || (x <= 3 && z <= 3));
+        do { 
+            x = Math.floor(Math.random() * mazeSize); 
+            z = Math.floor(Math.random() * mazeSize); 
+        } while (mazeLayout[z][x] === 1 || (x <= 3 && z <= 3));
+        
         const clutterItem = createClutterItem();
         clutterItem.position.set(x, 0.3, z);
-        clutter.push(clutterItem); scene.add(clutterItem);
+        clutter.push(clutterItem);
+        scene.add(clutterItem);
     }
 
-    if (level > 1 && Math.random() < 0.7) {
+    // Add power-ups
+    if (level > 1 && Math.random() < 0.8) {
         let x, z;
-        do { x = Math.floor(Math.random() * mazeSize); z = Math.floor(Math.random() * mazeSize); }
-        while (mazeLayout[z][x] === 1 || (x <= 3 && z <= 3));
+        do { 
+            x = Math.floor(Math.random() * mazeSize); 
+            z = Math.floor(Math.random() * mazeSize); 
+        } while (mazeLayout[z][x] === 1 || (x <= 3 && z <= 3));
+        
         const powerup = createPowerup('health');
         powerup.position.set(x, 0.5, z);
-        powerups.push(powerup); scene.add(powerup);
+        powerups.push(powerup);
+        scene.add(powerup);
     }
 
-    let goodCustomers = Math.min(1 + Math.floor(level*1.2), 5);
-    let badCustomers = Math.min(level*2, 13);
+    // Create customers with better AI
+    let goodCustomers = Math.min(2 + Math.floor(level*0.8), 6);
+    let badCustomers = Math.min(level*1.5, 12);
+    
     for (let i = 0; i < goodCustomers; i++) {
         let x, z;
-        do { x = Math.floor(Math.random() * mazeSize); z = Math.floor(Math.random() * mazeSize);}
-        while (mazeLayout[z][x] === 1 || (x <= 3 && z <= 3) || distance2D(x, z, 2, 2) < 4);
+        do { 
+            x = Math.floor(Math.random() * mazeSize); 
+            z = Math.floor(Math.random() * mazeSize);
+        } while (mazeLayout[z][x] === 1 || (x <= 4 && z <= 4) || distance2D(x, z, 2, 2) < 5);
+        
         const customer = createCustomer('good');
         customer.position.set(x, 0.8, z);
-        customer.userData = { type: 'good', direction: new THREE.Vector3(Math.random()-0.5,0,Math.random()-0.5).normalize(), nextDirectionChange: Date.now()+Math.random()*3000+2000, chasing: false, health: 1 };
-        customers.push(customer); scene.add(customer);
+        customer.userData = { 
+            type: 'good', 
+            direction: new THREE.Vector3(Math.random()-0.5,0,Math.random()-0.5).normalize(), 
+            nextDirectionChange: Date.now()+Math.random()*4000+3000, 
+            chasing: false, 
+            health: 1,
+            speed: customerSpeed * 0.6
+        };
+        customers.push(customer);
+        scene.add(customer);
     }
+    
     for (let i = 0; i < badCustomers; i++) {
         let x, z;
-        do { x = Math.floor(Math.random() * mazeSize); z = Math.floor(Math.random() * mazeSize);}
-        while (mazeLayout[z][x] === 1 || (x <= 3 && z <= 3) || distance2D(x, z, 2, 2) < 4);
+        do { 
+            x = Math.floor(Math.random() * mazeSize); 
+            z = Math.floor(Math.random() * mazeSize);
+        } while (mazeLayout[z][x] === 1 || (x <= 4 && z <= 4) || distance2D(x, z, 2, 2) < 5);
+        
         const customer = createCustomer('bad');
         customer.position.set(x, 0.8, z);
-        customer.userData = { type: 'bad', direction: new THREE.Vector3(Math.random()-0.5,0,Math.random()-0.5).normalize(), nextDirectionChange: Date.now()+Math.random()*3000+2000, chasing: false, health: 3 };
-        customers.push(customer); scene.add(customer);
+        customer.userData = { 
+            type: 'bad', 
+            direction: new THREE.Vector3(Math.random()-0.5,0,Math.random()-0.5).normalize(), 
+            nextDirectionChange: Date.now()+Math.random()*3000+2000, 
+            chasing: false, 
+            health: 3,
+            speed: customerSpeed,
+            lastPlayerSeen: 0
+        };
+        customers.push(customer);
+        scene.add(customer);
     }
+    
     scene.add(maze);
     updateUI();
 }
 
 function createPlayer() {
-    const geometry = new THREE.OctahedronGeometry(0.4, 0);
-    const material = new THREE.MeshPhongMaterial({ color: 0x00ffff, shininess: 100, transparent: false, emissive: 0x0088aa });
+    const geometry = new THREE.OctahedronGeometry(0.35, 1);
+    const material = new THREE.MeshPhongMaterial({ 
+        color: 0x00ffff, 
+        shininess: 100, 
+        transparent: true, 
+        opacity: 0.9,
+        emissive: 0x003333
+    });
     player = new THREE.Mesh(geometry, material);
-    player.position.set(2, 0.5, 2); player.castShadow = true;
+    player.position.set(2, 0.5, 2);
+    player.castShadow = true;
     scene.add(player);
 }
+
 function createShelfTexture() {
-    const canvas = document.createElement('canvas'); canvas.width = canvas.height = 64; const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#8B4513'; ctx.fillRect(0, 0, 64, 64);
-    for (let i = 0; i < 100; i++) { ctx.fillStyle = `rgba(${139+Math.random()*40},${69+Math.random()*20},${19+Math.random()*20},0.3)`; ctx.fillRect(Math.random()*64,Math.random()*64,2,2);}
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    
+    // Base color
+    ctx.fillStyle = '#654321';
+    ctx.fillRect(0, 0, 128, 128);
+    
+    // Add wood grain
+    for (let i = 0; i < 200; i++) {
+        ctx.fillStyle = `rgba(${101+Math.random()*30},${67+Math.random()*20},${33+Math.random()*20},0.4)`;
+        ctx.fillRect(Math.random()*128, Math.random()*128, 2, 2);
+    }
+    
     return new THREE.CanvasTexture(canvas);
 }
+
 function createClutterItem() {
-    const geometries = [new THREE.BoxGeometry(0.4,0.4,0.4), new THREE.SphereGeometry(0.2,8,6), new THREE.CylinderGeometry(0.15,0.15,0.4,8)];
+    const geometries = [
+        new THREE.BoxGeometry(0.4,0.4,0.4), 
+        new THREE.SphereGeometry(0.25,8,6), 
+        new THREE.CylinderGeometry(0.15,0.15,0.4,8)
+    ];
     const geometry = geometries[Math.floor(Math.random()*geometries.length)];
-    const material = new THREE.MeshPhongMaterial({ color: new THREE.Color().setHSL(0.15, 0.9, 0.7), emissive: new THREE.Color().setHSL(0.15,0.5,0.2)});
-    const item = new THREE.Mesh(geometry, material); item.castShadow = true;
-    item.userData = { rotationSpeed: Math.random()*0.05+0.02, bobSpeed: Math.random()*0.005+0.003, bobOffset: Math.random()*Math.PI*2 };
+    const material = new THREE.MeshPhongMaterial({ 
+        color: new THREE.Color().setHSL(0.15, 0.9, 0.8), 
+        emissive: new THREE.Color().setHSL(0.15,0.5,0.3),
+        shininess: 50
+    });
+    const item = new THREE.Mesh(geometry, material);
+    item.castShadow = true;
+    item.userData = { 
+        rotationSpeed: Math.random()*0.08+0.03, 
+        bobSpeed: Math.random()*0.008+0.004, 
+        bobOffset: Math.random()*Math.PI*2 
+    };
     return item;
 }
+
 function createCustomer(type) {
     const customer = new THREE.Group();
-    const color = type === 'bad' ? 0xff2222 : 0x22ff22;
-    const material = new THREE.MeshPhongMaterial({ color: color, emissive: new THREE.Color(color).multiplyScalar(0.1) });
-    const bodyGeometry = new THREE.CylinderGeometry(0.3,0.4,1.2,8);
-    const body = new THREE.Mesh(bodyGeometry, material); body.position.y = 0.6; body.castShadow = true; customer.add(body);
+    const color = type === 'bad' ? 0xff3333 : 0x33ff33;
+    const material = new THREE.MeshPhongMaterial({ 
+        color: color, 
+        emissive: new THREE.Color(color).multiplyScalar(0.2),
+        shininess: 30
+    });
+    
+    // Body
+    const bodyGeometry = new THREE.CylinderGeometry(0.3,0.35,1.0,8);
+    const body = new THREE.Mesh(bodyGeometry, material);
+    body.position.y = 0.5;
+    body.castShadow = true;
+    customer.add(body);
+    
+    // Head
     const headGeometry = new THREE.SphereGeometry(0.25,8,6);
-    const head = new THREE.Mesh(headGeometry, material); head.position.y = 1.4; head.castShadow = true; customer.add(head);
-    const eyeGeometry = new THREE.SphereGeometry(0.05,4,4);
+    const head = new THREE.Mesh(headGeometry, material);
+    head.position.y = 1.2;
+    head.castShadow = true;
+    customer.add(head);
+    
+    // Eyes
+    const eyeGeometry = new THREE.SphereGeometry(0.06,4,4);
     const eyeMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
-    const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial); leftEye.position.set(-0.1,1.45,0.2);
-    const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial); rightEye.position.set(0.1,1.45,0.2);
-    customer.add(leftEye); customer.add(rightEye);
+    const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    leftEye.position.set(-0.1,1.25,0.2);
+    const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+    rightEye.position.set(0.1,1.25,0.2);
+    customer.add(leftEye);
+    customer.add(rightEye);
+    
     customer.userData = { type: type, health: type==='bad'?3:1 };
     return customer;
 }
+
 function createPowerup(type) {
-    const geometry = new THREE.TorusGeometry(0.25, 0.09, 10, 18);
-    const material = new THREE.MeshPhongMaterial({ color: type==='health'?0xff00ff:0x00ff00, emissive: 0x550055 });
-    const mesh = new THREE.Mesh(geometry, material); mesh.castShadow = true;
+    const geometry = new THREE.TorusGeometry(0.25, 0.08, 8, 16);
+    const material = new THREE.MeshPhongMaterial({ 
+        color: type==='health'?0xff00ff:0x00ff00, 
+        emissive: type==='health'?0x330033:0x003300,
+        shininess: 100
+    });
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.castShadow = true;
     mesh.userData = { type: type };
     return mesh;
 }
-function distance2D(x1,z1,x2,z2) { return Math.sqrt((x1-x2)**2+(z1-z2)**2); }
+
+function distance2D(x1,z1,x2,z2) { 
+    return Math.sqrt((x1-x2)**2+(z1-z2)**2); 
+}
 
 // --- Event Listeners ---
 function setupEventListeners() {
@@ -388,74 +804,132 @@ function setupEventListeners() {
         if (event.code === 'KeyM') toggleMute();
         event.preventDefault();
     });
-    document.addEventListener('keyup', (event) => { keys[event.code] = false; });
-    document.addEventListener('mousemove', (event) => {});
-    document.addEventListener('mousedown', (event) => {
-        if (gameState === 'playing') shoot();
+    
+    document.addEventListener('keyup', (event) => { 
+        keys[event.code] = false; 
     });
+    
+    document.addEventListener('mousedown', (event) => {
+        if (gameState === 'playing' && !mobileMode) shoot();
+    });
+    
     window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
+        
+        // Update mobile mode detection
+        const wasMobile = mobileMode;
+        mobileMode = isMobile();
+        if (wasMobile !== mobileMode) {
+            setupMobileControls();
+        }
+    });
+
+    // Prevent context menu on mobile
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
     });
 }
 
 // --- Shooting ---
 function shoot() {
     const currentTime = Date.now();
-    if (currentTime - lastShot < 200) return;
+    if (currentTime - lastShot < 150) return;
     lastShot = currentTime;
+    
     playSound("shoot");
-    const projectileGeometry = new THREE.SphereGeometry(0.05,6,4);
-    const projectileMaterial = new THREE.MeshPhongMaterial({ color: 0x00ffff, emissive: 0x004444 });
+    
+    const projectileGeometry = new THREE.SphereGeometry(0.06,8,6);
+    const projectileMaterial = new THREE.MeshPhongMaterial({ 
+        color: 0x00ffff, 
+        emissive: 0x004444,
+        shininess: 100
+    });
     const projectile = new THREE.Mesh(projectileGeometry, projectileMaterial);
-    projectile.position.copy(player.position); projectile.position.y += 0.3;
-    const direction = new THREE.Vector3(0,0,-1); // Shoot up screen in bird's eye view
-    projectile.userData = { direction: direction, speed: 0.5, life: 100 };
-    projectiles.push(projectile); scene.add(projectile);
+    projectile.position.copy(player.position);
+    projectile.position.y += 0.3;
+    
+    // Shoot in forward direction (up on screen)
+    const direction = new THREE.Vector3(0,0,-1);
+    projectile.userData = { direction: direction, speed: 0.6, life: 120 };
+    projectiles.push(projectile);
+    scene.add(projectile);
 }
 
 function startGame() {
-    gameState = 'playing'; level = 1; score = 0; health = maxHealth; cameraRotationY = 0; cameraRotationX = 0;
-    createMaze(); player.position.set(2, 0.5, 2);
+    gameState = 'playing'; 
+    level = 1; 
+    score = 0; 
+    health = maxHealth; 
+    createMaze(); 
+    player.position.set(2, 0.5, 2);
 }
+
 function restartGame() {
     document.getElementById('gameOver').style.display = 'none';
     startGame();
 }
+
 function nextLevel() {
     document.getElementById('levelComplete').style.display = 'none';
-    gameState = 'playing'; level++;
-    customerSpeed += 0.003; createMaze();
+    gameState = 'playing'; 
+    level++;
+    customerSpeed += 0.002;
+    playerSpeed += 0.005;
+    createMaze();
     player.position.set(2, 0.5, 2);
 }
+
 function pauseGame() {
     if (gameState === 'playing') {
         gameState = 'paused';
         document.getElementById("pauseMenu").style.display = "block";
+    } else if (gameState === 'paused') {
+        resumeGame();
     }
 }
+
 function resumeGame() {
     if (gameState === 'paused') {
         gameState = 'playing';
         document.getElementById("pauseMenu").style.display = "none";
     }
 }
+
 function collectPowerup(index) {
     const p = powerups[index];
     if (p.userData.type === 'health') {
         health = Math.min(maxHealth, health+1);
         playSound("powerup");
     }
-    scene.remove(p); powerups.splice(index,1); updateUI();
+    scene.remove(p);
+    powerups.splice(index,1);
+    updateUI();
 }
+
 function checkCollision(newPos) {
-    const gridX = Math.floor(newPos.x), gridZ = Math.floor(newPos.z);
+    const gridX = Math.floor(newPos.x);
+    const gridZ = Math.floor(newPos.z);
+    
     if (gridX < 0 || gridX >= mazeSize || gridZ < 0 || gridZ >= mazeSize) return true;
-    const buffer = 0.3;
+    
+    const buffer = 0.35;
+    
+    // Check current position
     if (mazeLayout[gridZ] && mazeLayout[gridZ][gridX] === 1) return true;
-    const checks = [[gridX-1,gridZ],[gridX+1,gridZ],[gridX,gridZ-1],[gridX,gridZ+1]];
+    
+    // Check surrounding walls
+    const checks = [
+        [gridX-1,gridZ], [gridX+1,gridZ], 
+        [gridX,gridZ-1], [gridX,gridZ+1],
+        [gridX-1,gridZ-1], [gridX+1,gridZ-1],
+        [gridX-1,gridZ+1], [gridX+1,gridZ+1]
+    ];
+    
     for (let [x,z] of checks) {
-        if (x >= 0 && x < mazeSize && z >= 0 && z < mazeSize && mazeLayout[z] && mazeLayout[z][x] === 1) {
+        if (x >= 0 && x < mazeSize && z >= 0 && z < mazeSize && 
+            mazeLayout[z] && mazeLayout[z][x] === 1) {
             const dx = Math.abs(newPos.x - (x+0.5));
             const dz = Math.abs(newPos.z - (z+0.5));
             if (dx < buffer && dz < buffer) return true;
@@ -463,49 +937,64 @@ function checkCollision(newPos) {
     }
     return false;
 }
+
 function updatePlayer() {
     if (gameState !== 'playing') return;
+    
     const moveVector = new THREE.Vector3();
 
-    if (keys['KeyW'] || keys['ArrowUp']) { moveVector.z -= playerSpeed;}
-    if (keys['KeyS'] || keys['ArrowDown']) { moveVector.z += playerSpeed;}
-    if (keys['KeyA'] || keys['ArrowLeft']) { moveVector.x -= playerSpeed;}
-    if (keys['KeyD'] || keys['ArrowRight']) { moveVector.x += playerSpeed;}
+    // Keyboard controls
+    if (keys['KeyW'] || keys['ArrowUp']) moveVector.z -= playerSpeed;
+    if (keys['KeyS'] || keys['ArrowDown']) moveVector.z += playerSpeed;
+    if (keys['KeyA'] || keys['ArrowLeft']) moveVector.x -= playerSpeed;
+    if (keys['KeyD'] || keys['ArrowRight']) moveVector.x += playerSpeed;
 
-    if (mobileMode) {
-        if (mobileMove.up)    { moveVector.z -= playerSpeed;}
-        if (mobileMove.down)  { moveVector.z += playerSpeed;}
-        if (mobileMove.left)  { moveVector.x -= playerSpeed;}
-        if (mobileMove.right) { moveVector.x += playerSpeed;}
-    }
+    // Mobile controls
+    if (mobileMove.up) moveVector.z -= playerSpeed;
+    if (mobileMove.down) moveVector.z += playerSpeed;
+    if (mobileMove.left) moveVector.x -= playerSpeed;
+    if (mobileMove.right) moveVector.x += playerSpeed;
 
     if (moveVector.length() > 0) {
+        moveVector.normalize().multiplyScalar(playerSpeed);
         const newPosition = player.position.clone().add(moveVector);
+        
         if (!checkCollision(newPosition)) {
             player.position.copy(newPosition);
-            player.rotation.y += 0.03;
-            player.rotation.x = Math.sin(Date.now()*0.003)*0.15;
-            player.position.y = 0.5 + Math.sin(Date.now()*0.005)*0.08;
+            // Enhanced movement animations
+            player.rotation.y += 0.05;
+            player.rotation.x = Math.sin(Date.now()*0.005)*0.2;
+            player.position.y = 0.5 + Math.sin(Date.now()*0.008)*0.1;
         }
     } else {
-        player.rotation.y += 0.015;
-        player.position.y = 0.5 + Math.sin(Date.now()*0.002)*0.04;
+        // Idle animations
+        player.rotation.y += 0.02;
+        player.position.y = 0.5 + Math.sin(Date.now()*0.003)*0.05;
     }
 
-    // Camera tracks above the diamond, always centered (Pac-Man style)
+    // Enhanced camera tracking - closer and more responsive
     camera.position.x = player.position.x;
     camera.position.z = player.position.z;
-    camera.position.y = 8;
+    camera.position.y = 5.5; // Perfect height above walls
     camera.lookAt(player.position.x, player.position.y, player.position.z);
 
+    // Collect clutter items
     for (let i = clutter.length-1; i>=0; i--) {
         const distance = player.position.distanceTo(clutter[i].position);
-        if (distance < 1.2) {
-            scene.remove(clutter[i]); clutter.splice(i,1); score += 10;
+        if (distance < 1.0) {
+            scene.remove(clutter[i]);
+            clutter.splice(i,1);
+            score += 15;
             playSound("collect");
-            player.scale.set(1.3,1.3,1.3);
-            setTimeout(()=>{ if (player) player.scale.set(1,1,1);}, 150);
+            
+            // Enhanced collection effect
+            player.scale.set(1.4,1.4,1.4);
+            setTimeout(()=>{ 
+                if (player) player.scale.set(1,1,1);
+            }, 200);
+            
             updateUI();
+            
             if (clutter.length === 0) {
                 gameState = 'levelComplete';
                 document.getElementById('levelScore').textContent = score;
@@ -515,154 +1004,298 @@ function updatePlayer() {
             }
         }
     }
+    
+    // Collect power-ups
     for (let i = powerups.length-1; i>=0; i--) {
         const distance = player.position.distanceTo(powerups[i].position);
-        if (distance < 1.1) {
+        if (distance < 0.8) {
             collectPowerup(i);
         }
     }
 }
+
 function updateCustomers() {
     if (gameState !== 'playing') return;
+    
     customers.forEach((customer, customerIndex) => {
         const currentTime = Date.now();
         const distanceToPlayer = customer.position.distanceTo(player.position);
+        
         if (customer.userData.type === 'bad') {
-            if (distanceToPlayer < 3) {
-                customer.userData.chasing = true; customer.userData.lastPlayerSeen = currentTime;
+            if (distanceToPlayer < 4) {
+                customer.userData.chasing = true;
+                customer.userData.lastPlayerSeen = currentTime;
                 const direction = player.position.clone().sub(customer.position).normalize();
                 customer.userData.direction = direction;
-            } else if (currentTime - customer.userData.lastPlayerSeen > 5000) {
+            } else if (currentTime - customer.userData.lastPlayerSeen > 4000) {
                 customer.userData.chasing = false;
                 if (currentTime > customer.userData.nextDirectionChange) {
-                    customer.userData.direction = new THREE.Vector3(Math.random()-0.5,0,Math.random()-0.5).normalize();
-                    customer.userData.nextDirectionChange = currentTime + Math.random()*6000+4000;
+                    customer.userData.direction = new THREE.Vector3(
+                        Math.random()-0.5,0,Math.random()-0.5
+                    ).normalize();
+                    customer.userData.nextDirectionChange = currentTime + Math.random()*5000+3000;
                 }
             }
         } else {
+            // Good customers wander randomly
             if (currentTime > customer.userData.nextDirectionChange) {
-                customer.userData.direction = new THREE.Vector3(Math.random()-0.5,0,Math.random()-0.5).normalize();
-                customer.userData.nextDirectionChange = currentTime+Math.random()*8000+6000;
+                customer.userData.direction = new THREE.Vector3(
+                    Math.random()-0.5,0,Math.random()-0.5
+                ).normalize();
+                customer.userData.nextDirectionChange = currentTime+Math.random()*6000+4000;
             }
             customer.userData.chasing = false;
         }
-        const baseSpeed = customerSpeed*0.7;
-        const speed = (customer.userData.chasing && customer.userData.type === 'bad') ? baseSpeed*1.5 : baseSpeed*0.5;
+        
+        const speed = customer.userData.chasing ? 
+            customer.userData.speed * 1.8 : 
+            customer.userData.speed * 0.7;
+            
         const moveVector = customer.userData.direction.clone().multiplyScalar(speed);
         const newPosition = customer.position.clone().add(moveVector);
-        if (!checkCollision(newPosition)) customer.position.copy(newPosition); else customer.userData.direction.multiplyScalar(-1);
-        if (distanceToPlayer < 0.6 && customer.userData.type === 'bad') {
+        
+        if (!checkCollision(newPosition)) {
+            customer.position.copy(newPosition);
+        } else {
+            customer.userData.direction.multiplyScalar(-1);
+        }
+        
+        // Enhanced collision with player
+        if (distanceToPlayer < 0.7 && customer.userData.type === 'bad') {
             const currentTime = Date.now();
-            if (currentTime - lastHitTime > 1000 && !playerInvincible) {
-                health--; lastHitTime = currentTime; playerInvincible = true;
+            if (currentTime - lastHitTime > 1200 && !playerInvincible) {
+                health--;
+                lastHitTime = currentTime;
+                playerInvincible = true;
                 playSound("hit");
-                setTimeout(()=>{ playerInvincible = false; }, 1000);
+                
+                setTimeout(()=>{ playerInvincible = false; }, 1200);
                 updateUI();
+                
+                // Push player away
                 const pushDirection = player.position.clone().sub(customer.position).normalize();
-                const pushPos = player.position.clone().add(pushDirection.multiplyScalar(0.3));
+                const pushPos = player.position.clone().add(pushDirection.multiplyScalar(0.5));
                 if (!checkCollision(pushPos)) player.position.copy(pushPos);
+                
                 if (health <= 0) {
-                    gameState = 'gameOver'; document.getElementById('finalScore').textContent = score;
-                    document.getElementById('gameOver').style.display = 'block'; playSound("gameover");
+                    gameState = 'gameOver';
+                    document.getElementById('finalScore').textContent = score;
+                    document.getElementById('gameOver').style.display = 'block';
+                    playSound("gameover");
                     saveLeaderboard(score);
                 }
             }
         }
-        if (customer.userData.direction.length() > 0) customer.lookAt(customer.position.clone().add(customer.userData.direction));
-        customer.position.y = 0.8 + Math.sin(currentTime*0.002+customerIndex)*0.03;
+        
+        // Look at movement direction
+        if (customer.userData.direction.length() > 0) {
+            customer.lookAt(customer.position.clone().add(customer.userData.direction));
+        }
+        
+        // Enhanced bobbing animation
+        customer.position.y = 0.8 + Math.sin(currentTime*0.003+customerIndex)*0.05;
     });
 }
+
 function updateProjectiles() {
     for (let i = projectiles.length-1; i>=0; i--) {
         const projectile = projectiles[i];
         const movement = projectile.userData.direction.clone().multiplyScalar(projectile.userData.speed);
         projectile.position.add(movement);
-        if (checkCollision(projectile.position)) { scene.remove(projectile); projectiles.splice(i,1); continue; }
+        
+        // Check wall collision
+        if (checkCollision(projectile.position)) {
+            scene.remove(projectile);
+            projectiles.splice(i,1);
+            continue;
+        }
+        
+        // Check customer collision
         let hit = false;
         for (let j = customers.length-1; j>=0; j--) {
             const customer = customers[j];
             const distance = projectile.position.distanceTo(customer.position);
-            if (distance < 0.5) {
+            if (distance < 0.6) {
                 customer.userData.health--;
                 if (customer.userData.health <= 0) {
-                    scene.remove(customer); customers.splice(j,1);
-                    score += customer.userData.type==='bad'?50:-20;
+                    scene.remove(customer);
+                    customers.splice(j,1);
+                    score += customer.userData.type==='bad'?75:-25;
                     playSound("hit");
                     updateUI();
                 }
-                scene.remove(projectile); projectiles.splice(i,1); hit = true; break;
+                scene.remove(projectile);
+                projectiles.splice(i,1);
+                hit = true;
+                break;
             }
         }
+        
         if (hit) continue;
+        
+        // Remove projectile after lifetime
         projectile.userData.life--;
-        if (projectile.userData.life <= 0) { scene.remove(projectile); projectiles.splice(i,1);}
+        if (projectile.userData.life <= 0) {
+            scene.remove(projectile);
+            projectiles.splice(i,1);
+        }
     }
 }
+
 function updateMinimap() {
     if (!minimapCtx) return;
-    minimapCtx.fillStyle = '#000'; minimapCtx.fillRect(0,0,200,200);
-    const scale = 200/mazeSize;
-    minimapCtx.fillStyle = '#8B4513';
-    for (let z=0;z<mazeSize;z++) for (let x=0;x<mazeSize;x++)
-    if (mazeLayout[z][x]===1) minimapCtx.fillRect(x*scale,z*scale,scale,scale);
+    
+    const mapSize = minimapCanvas.width;
+    minimapCtx.fillStyle = '#000';
+    minimapCtx.fillRect(0,0,mapSize,mapSize);
+    
+    const scale = mapSize/mazeSize;
+    
+    // Draw walls
+    minimapCtx.fillStyle = '#654321';
+    for (let z=0;z<mazeSize;z++) {
+        for (let x=0;x<mazeSize;x++) {
+            if (mazeLayout[z][x]===1) {
+                minimapCtx.fillRect(x*scale,z*scale,scale,scale);
+            }
+        }
+    }
+    
+    // Draw clutter
     minimapCtx.fillStyle = '#ffff00';
-    clutter.forEach(item=>{ const x=item.position.x*scale, z=item.position.z*scale; minimapCtx.fillRect(x-2,z-2,4,4); });
-    powerups.forEach(item=>{ const x=item.position.x*scale, z=item.position.z*scale; minimapCtx.fillStyle="#ff00ff"; minimapCtx.fillRect(x-3,z-3,6,6); });
-    customers.forEach(customer=>{
-        minimapCtx.fillStyle = customer.userData.type==='bad'?'#ff0000':'#00ff00';
-        const x=customer.position.x*scale, z=customer.position.z*scale; minimapCtx.fillRect(x-3,z-3,6,6);
+    clutter.forEach(item=>{
+        const x=item.position.x*scale;
+        const z=item.position.z*scale;
+        minimapCtx.fillRect(x-2,z-2,4,4);
     });
+    
+    // Draw powerups
+    minimapCtx.fillStyle = '#ff00ff';
+    powerups.forEach(item=>{
+        const x=item.position.x*scale;
+        const z=item.position.z*scale;
+        minimapCtx.fillRect(x-3,z-3,6,6);
+    });
+    
+    // Draw customers
+    customers.forEach(customer=>{
+        minimapCtx.fillStyle = customer.userData.type==='bad'?'#ff3333':'#33ff33';
+        const x=customer.position.x*scale;
+        const z=customer.position.z*scale;
+        minimapCtx.fillRect(x-3,z-3,6,6);
+    });
+    
+    // Draw player
     minimapCtx.fillStyle = '#00ffff';
-    const px=player.position.x*scale, pz=player.position.z*scale; minimapCtx.fillRect(px-4,pz-4,8,8);
+    const px=player.position.x*scale;
+    const pz=player.position.z*scale;
+    minimapCtx.fillRect(px-4,pz-4,8,8);
 }
+
 function updateUI() {
-    let levelName = level===1?'1 (Easy)':level===2?'2 (Medium)':level===3?'3 (Difficult)':level+' (Expert)';
+    let levelName = level===1?'1 (Easy)':level===2?'2 (Medium)':level===3?'3 (Hard)':level+' (Expert)';
     document.getElementById('level').textContent = levelName;
     document.getElementById('clutter').textContent = clutter.length;
     document.getElementById('score').textContent = score;
+    
     let healthDisplay = '';
     for (let i=0; i<Math.max(health,0); i++) healthDisplay+='❤️';
+    for (let i=health; i<maxHealth; i++) healthDisplay+='🖤';
     document.getElementById('health').textContent = healthDisplay;
 }
+
 function animate() {
     requestAnimationFrame(animate);
+    
     if (gameState === 'playing') {
-        updatePlayer(); updateCustomers(); updateProjectiles();
+        updatePlayer();
+        updateCustomers();
+        updateProjectiles();
         updateMinimap();
     }
+    
+    // Enhanced animations
     const time = Date.now();
-    clutter.forEach((item,index)=>{ if (item.userData) { item.rotation.y+=item.userData.rotationSpeed; item.position.y=0.3+Math.sin(time*item.userData.bobSpeed+item.userData.bobOffset)*0.1;} });
-    powerups.forEach((item,index)=>{ item.rotation.z+=0.05; item.position.y=0.5+Math.sin(time*0.003+index)*0.08; });
+    
+    // Animate clutter items
+    clutter.forEach((item,index)=>{
+        if (item.userData) {
+            item.rotation.y += item.userData.rotationSpeed;
+            item.rotation.x += item.userData.rotationSpeed * 0.5;
+            item.position.y = 0.3 + Math.sin(time*item.userData.bobSpeed+item.userData.bobOffset)*0.12;
+        }
+    });
+    
+    // Animate powerups
+    powerups.forEach((item,index)=>{
+        item.rotation.y += 0.08;
+        item.rotation.z += 0.06;
+        item.position.y = 0.5 + Math.sin(time*0.004+index)*0.1;
+    });
+    
+    // Player invincibility visual effect
+    if (playerInvincible) {
+        player.material.opacity = 0.5 + Math.sin(time*0.02)*0.3;
+    } else {
+        player.material.opacity = 0.9;
+    }
+    
     renderer.render(scene, camera);
 }
+
 function saveLeaderboard(newScore) {
-    if (typeof(Storage)!=="undefined") {
-        leaderboardScores = JSON.parse(localStorage.getItem("diamondScores")||"[]");
-        leaderboardScores.push(newScore); leaderboardScores.sort((a,b)=>b-a);
-        leaderboardScores = leaderboardScores.slice(0,10);
-        localStorage.setItem("diamondScores", JSON.stringify(leaderboardScores));
+    try {
+        let scores = JSON.parse(window.localStorage?.getItem("diamondScores") || "[]");
+        scores.push({score: newScore, date: new Date().toLocaleDateString()});
+        scores.sort((a,b) => b.score - a.score);
+        scores = scores.slice(0,10);
+        window.localStorage?.setItem("diamondScores", JSON.stringify(scores));
+        leaderboardScores = scores;
+    } catch(e) {
+        console.warn("Could not save to localStorage");
     }
 }
+
 function loadLeaderboard() {
-    leaderboardScores = JSON.parse(localStorage.getItem("diamondScores")||"[]");
+    try {
+        leaderboardScores = JSON.parse(window.localStorage?.getItem("diamondScores") || "[]");
+    } catch(e) {
+        leaderboardScores = [];
+    }
 }
+
 function showLeaderboard() {
     loadLeaderboard();
-    let listHTML = "<ol style='text-align:left;'>";
-    leaderboardScores.forEach(s=>{ listHTML+=`<li>${s}</li>`; });
+    let listHTML = "<ol style='text-align:left; margin:0; padding-left:20px;'>";
+    if (leaderboardScores.length === 0) {
+        listHTML += "<li>No scores yet!</li>";
+    } else {
+        leaderboardScores.forEach(entry => {
+            const score = typeof entry === 'object' ? entry.score : entry;
+            const date = typeof entry === 'object' ? entry.date : '';
+            listHTML += `<li>${score} ${date ? '- ' + date : ''}</li>`;
+        });
+    }
     listHTML += "</ol>";
     document.getElementById("scoresList").innerHTML = listHTML;
     document.getElementById("leaderboard").style.display = "block";
 }
+
 function hideLeaderboard() {
     document.getElementById("leaderboard").style.display = "none";
 }
 
-// Immediately start the game on page load (no start or resume button)
+// Initialize game immediately
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('instructions').style.display = 'none';
     init();
     startGame();
+});
+
+// Handle page visibility for mobile
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden && gameState === 'playing') {
+        pauseGame();
+    }
 });
 </script>
 </body>
